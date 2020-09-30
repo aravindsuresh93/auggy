@@ -1,4 +1,5 @@
 from utils.path_manager import PathFinder
+from utils.project_manager import ProjectManager
 from analytics.label_stats import StatMaster
 import falcon
 import json
@@ -15,7 +16,7 @@ def decode(req):
     return request
 
 
-class PathSet:
+class PathSet_1:
 
     def on_get(self, req, resp):
         try:
@@ -101,6 +102,58 @@ class GetListOfImages:
 
 
 
+class PathSet:
+
+    def on_get(self, req, resp):
+        try:
+            PF = PathFinder()
+            content = PF.__dict__
+            success, message = True, ""
+        except Exception as e:
+            content, success, message = {}, False, str(e)
+        data = {'data': content, 'success': success, 'message': message}
+        resp.body = json.dumps(data)
+
+    def on_post(self, req, resp):
+        try:
+            PF = PathFinder()
+            request = decode(req)
+            for k, v in request.items():
+                PF.__setattr__(k, v)
+            PF.save()
+            success, message = True, ""
+        except Exception as e:
+            success, message = False, str(e)
+        resp.body = json.dumps({"success": success, "message": message})
+
+class Projects:
+    def on_get(self,req, resp):
+        pm = ProjectManager()
+        # try:
+        content,success, message = pm.get_projects()
+        # except Exception as e:
+        #     content, success, message = {}, False, str(e)
+        data = {'data': content, 'success': success, 'message': message}
+        resp.body = json.dumps(data)
+
+
+    def on_post(self, req, resp):
+        pm = ProjectManager()
+        request = decode(req)
+        try:
+            method = request.get('method')
+            if method == 'edit':
+                success, message = pm.edit_project(request)
+            elif method == 'new':
+                success, message = pm.new_project(request)
+            elif method == 'delete':
+                success, message = pm.delete_project(request)
+        except Exception as e:
+            success, message = False, str(e)
+        resp.body = json.dumps({"success": success, "message": message})
+
+
+
 
 
 app = falcon.API()
@@ -109,6 +162,8 @@ app.add_route('/stats', GetStats())
 app.add_route('/rename', RenameLabel())
 app.add_route('/delete', DeleteLabel())
 app.add_route('/getimagebylabel', GetListOfImages())
+app.add_route('/projects', Projects())
+
 
 print('ready')
 # For windows

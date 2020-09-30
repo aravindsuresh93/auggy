@@ -1,8 +1,0 @@
-{
-    "current" : "project1",
-    "projects" : {
-                    "project1" : {"folder" : "", "config" : ""},
-                    "project2" : {"folder" : "", "config" : ""}
-                }
-    
-}
