@@ -465,7 +465,7 @@ def transform_image(img, bboxes, transform):
 
 
     """
-    1. Color Transformations
+    2. Color Transformations
     """
 
     """Random Greyscale"""
@@ -504,6 +504,14 @@ def transform_image(img, bboxes, transform):
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 5))
         img = adjust_blur(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
+
+
+    """
+    3. Misc Transformations
+    """
+
+    if transformation_type == "randomnoise":
+        img, bboxes = put_random_noise(img.copy(), bboxes.copy())
 
 
     return img, bboxes
