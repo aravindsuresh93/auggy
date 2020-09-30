@@ -1,0 +1,9 @@
+Quickoli/
+AdHoc/
+augment_old/
+config_2.json
+__pycache__/
+output/
+test_images/
+API_DOC.md
+install.md
