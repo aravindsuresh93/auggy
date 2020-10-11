@@ -140,16 +140,21 @@ class Projects:
     def on_post(self, req, resp):
         pm = ProjectManager()
         request = decode(req)
-        try:
-            method = request.get('method')
-            if method == 'edit':
-                success, message = pm.edit_project(request)
-            elif method == 'new':
-                success, message = pm.new_project(request)
-            elif method == 'delete':
-                success, message = pm.delete_project(request)
-        except Exception as e:
-            success, message = False, str(e)
+        # try:
+        method = request.get('method')
+        if method == 'edit':
+            success, message = pm.edit_project(request)
+        elif method == 'create':
+            success, message = pm.create_project(request)
+        elif method == 'delete':
+            success, message = pm.delete_project(request)
+        elif method == 'current':
+            success, message = pm.current(request)
+        else:
+            success, message = False, "Invalid Method"
+
+        # except Exception as e:
+        #     success, message = False, str(e)
         resp.body = json.dumps({"success": success, "message": message})
 
 

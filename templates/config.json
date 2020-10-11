@@ -1,10 +1,10 @@
 {
     "outputFolder": "",
-    "augmentationOutputFolder": "C:\\Users\\ds\\Desktop\\Projects\\auggy\\output",
-    "imageFolder": "C:\\Users\\ds\\Desktop\\Projects\\auggy\\test_images\\yolo",
-    "annotationFolder": "C:\\Users\\ds\\Desktop\\Projects\\auggy\\test_images\\yolo",
-    "classesPath": "C:\\Users\\ds\\Desktop\\Projects\\auggy\\test_images\\yolo\\classes.txt",
-    "annotationFormat": "txt",
+    "augmentationOutputFolder": "",
+    "imageFolder": "",
+    "annotationFolder": "",
+    "classesPath": "",
+    "annotationFormat": "",
     "imgFormat": [
         "jpg",
         "jpeg",
