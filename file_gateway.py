@@ -12,11 +12,15 @@ class Saver:
     def upload(self, files, filetype):
         if filetype == 'images':
             fbasepath = self.PF.imageFolder
+            self.save(files, fbasepath)
         elif filetype == 'annotations':
             fbasepath = self.PF.annotationFolder
+            self.save(files, fbasepath)
         elif filetype == 'classes':
-            fbasepath = self.PF.classesPath
-        self.save(files, fbasepath)
+            fh = open(f"{self.PF.classesPath}/{classes.txt}", "wb")
+            fh.write(f.body)
+            fh.close
+        
     
     def save(self, files, fbasepath):
         for f in files:
@@ -28,26 +32,28 @@ class Saver:
 
 class upload_files(tornado.web.RequestHandler):
     def post(self):
-        saver = Saver()
-        images = self.request.files.get("images")
-        if images:
-            saver.upload(images, 'images')
+        try:
+            saver = Saver()
+            images = self.request.files.get("images")
+            if images:
+                saver.upload(images, 'images')
+            
+            annotations = self.request.files.get("annotations")
+            if annotations:
+                saver.upload(annotations, 'annotations')
+            
+            classes = self.request.files.get("classes")
+            if classes:
+                saver.upload(classes, 'annotations')
+
+            success = True
+            message = ''
+        except Exception as e:
+            success = False
+            message = str(e)
+
+        self.write(json.dumps({'success' : success, 'message':message}))
         
-
-        annotations = self.request.files.get("annotations")
-        if annotations:
-            saver.upload(annotations, 'annotations')
-        
-        classes = self.request.files.get("classes")
-        if classes:
-            saver.upload(classes, 'annotations')
-
-        self.write(json.dumps({'yes' : '1'}))
-        
- 
-
-
-
 
 if (__name__ == "__main__"):
     app = tornado.web.Application([("/", upload_files),])

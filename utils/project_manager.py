@@ -84,6 +84,7 @@ class ProjectManager:
                 
         template_config['imageFolder'] = f'data/{name}/input_images'
         template_config['annotationFolder'] = f'data/{name}/input_annotations'
+        template_config['annotationFolder'] = f'data/{name}/classes.txt'
 
         with open(f'data/{name}/config.json', 'w') as f:
             json.dump(template_config, f)
