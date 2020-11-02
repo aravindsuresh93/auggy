@@ -1,9 +1,9 @@
 FROM jjanzic/docker-python3-opencv:latest
 
-RUN pip install falcon pandas numpy gunicorn
+RUN pip install falcon pandas numpy gunicorn tornado
 
 COPY . .
 
-RUN chmod +x gateway.py
+RUN chmod +x gateway.py file_gateway.py run.sh
 
-CMD gunicorn -b 0.0.0.0:8099 gateway:app --reload
+CMD ./run.sh

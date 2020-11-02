@@ -1,6 +1,6 @@
 from utils.path_manager import PathFinder
 from utils.project_manager import ProjectManager
-from analytics.label_stats import StatMaster
+from utils.label_stats import StatMaster
 import falcon
 import json
 import os
@@ -57,8 +57,6 @@ class Projects:
         resp.body = json.dumps({"success": success, "message": message})
 
 class Upload:
-    def on_get(self, req, resp):
-        pass
     def on_post(self, req, resp):
         try:
             request = decode(req)
@@ -77,12 +75,14 @@ class Upload:
                 classes_path = request.get('classesPath','')
                 assert len(classesPath), 'Classes path is empty'
 
-
+            success, message = True, ''
+        except Exception as e:
+            success, message = False, str(e)
+        resp.body = json.dumps({"success": success, "message": message})
 
 
 
 class PathSet:
-
     def on_get(self, req, resp):
         try:
             PF = PathFinder()
