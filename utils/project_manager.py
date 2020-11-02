@@ -69,6 +69,9 @@ class ProjectManager:
         return True, ''
 
     def create_project_structure(self, name):
+        
+        if not os.path.exists('data/'):
+            os.makedirs('data/')
         os.makedirs(f'data/{name}')
         os.makedirs(f'data/{name}/original')
         os.makedirs(f'data/{name}/input_images')

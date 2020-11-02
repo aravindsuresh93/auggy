@@ -1,15 +1,1 @@
-{
-    "current": "2",
-    "projects": {
-        "2": {
-            "name": "second",
-            "description": "somehin",
-            "owner": ""
-        },
-        "3": {
-            "name": "first",
-            "description": "",
-            "owner": ""
-        }
-    }
-}
+{"current": "", "projects": {"1": {"name": "first", "description": "hellow", "owner": ""}}}
