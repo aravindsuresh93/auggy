@@ -17,9 +17,10 @@ class Saver:
             fbasepath = self.PF.annotationFolder
             self.save(files, fbasepath)
         elif filetype == 'classes':
-            fh = open(f"{self.PF.classesPath}/{classes.txt}", "wb")
-            fh.write(f.body)
-            fh.close
+            for f in files:
+                fh = open(f"{self.PF.classesPath}", "wb")
+                fh.write(f.body)
+                fh.close
         
     
     def save(self, files, fbasepath):
@@ -44,7 +45,7 @@ class upload_files(tornado.web.RequestHandler):
             
             classes = self.request.files.get("classes")
             if classes:
-                saver.upload(classes, 'annotations')
+                saver.upload(classes, 'classes')
 
             success = True
             message = ''
