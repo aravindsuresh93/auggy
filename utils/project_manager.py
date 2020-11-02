@@ -1,6 +1,8 @@
 import shutil
 import json
 import os
+from shutil import copyfile
+
 
 project_config_file = 'project_config.json'
 
@@ -73,6 +75,18 @@ class ProjectManager:
         os.makedirs(f'data/{name}/input_annotations')  
         os.makedirs(f'data/{name}/output_images')
         os.makedirs(f'data/{name}/output_annotations')  
+        self.set_initial_config(name)
+        
+
+    def set_initial_config(self,name):
+        with open('templates/config.json', 'r') as f:
+                template_config = json.load(f)
+                
+        template_config['imageFolder'] = f'data/{name}/input_images'
+        template_config['annotationFolder'] = f'data/{name}/input_annotations'
+
+        with open(f'data/{name}/config.json', 'w') as f:
+            json.dump(template_config, f)
 
 
     def create_project(self,request):
@@ -90,7 +104,10 @@ class ProjectManager:
 
         description = request.get('description','')
         owner = request.get('owner','')
-        project_id = str(len(projects) + 1)
+
+        lastkey = max([int(val) for val in list(projects.keys())]) if len(projects)  else 0
+        
+        project_id = str(lastkey + 1)
         projects[project_id] = {"name": name,"description" : description, "owner" : owner}
         self.project_config['projects'] = projects
         self.create_project_structure(project_id)
@@ -108,15 +125,12 @@ class ProjectManager:
         name = request.get('name', '')
         if not name in project_names:
             return False, 'Project name not found'
-            
         project_id = project_names[name]
-
         shutil.rmtree(f'data/{project_id}')
         projects.pop(project_id)
         self.project_config['projects'] = projects
         self.save()
         return True, ''
-
 
     def save(self):
         with open(project_config_file, 'w') as f:

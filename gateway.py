@@ -16,6 +16,97 @@ def decode(req):
     return request
 
 
+class Login:
+    def on_post(self, req, resp):
+        success = True
+        message = "Feature yet to be implimented"
+        data = {'success': success, 'message': message}
+        resp.body = json.dumps(data)
+
+
+class Projects:
+    """
+    Project Management
+    """
+    def on_get(self,req, resp):
+        pm = ProjectManager()
+        try:
+            content,success, message = pm.get_projects()
+        except Exception as e:
+            content, success, message = {}, False, str(e)
+        data = {'data': content, 'success': success, 'message': message}
+        resp.body = json.dumps(data)
+
+    def on_post(self, req, resp):
+        pm = ProjectManager()
+        request = decode(req)
+        try:    
+            method = request.get('method')
+            if method == 'edit':
+                success, message = pm.edit_project(request)
+            elif method == 'create':
+                success, message = pm.create_project(request)
+            elif method == 'delete':
+                success, message = pm.delete_project(request)
+            elif method == 'current':
+                success, message = pm.current(request)
+            else:
+                success, message = False, "Invalid Method"
+        except Exception as e:
+            success, message = False, str(e)
+        resp.body = json.dumps({"success": success, "message": message})
+
+class Upload:
+    def on_get(self, req, resp):
+        pass
+    def on_post(self, req, resp):
+        try:
+            request = decode(req)
+            source_image_folder = request.get('imageFolder','')
+            assert len(source_image_folder), 'Image folder is empty'
+
+            source_annotation_folder = request.get('annotationFolder','')
+            assert len(source_annotation_folder), 'Annotation folder is empty'
+
+            annotation_format = request.get('annotationFormat','')
+            assert len(annotation_format), 'Annotation format is empty'
+            PF = PathFinder()
+            PF.__setattr__('annotationFormat', annotation_format)
+
+            if annotation_format == 'txt':
+                classes_path = request.get('classesPath','')
+                assert len(classesPath), 'Classes path is empty'
+
+
+
+
+
+class PathSet:
+
+    def on_get(self, req, resp):
+        try:
+            PF = PathFinder()
+            content = PF.__dict__
+            success, message = True, ""
+        except Exception as e:
+            content, success, message = {}, False, str(e)
+        data = {'data': content, 'success': success, 'message': message}
+        resp.body = json.dumps(data)
+
+    def on_post(self, req, resp):
+        try:
+            PF = PathFinder()
+            request = decode(req)
+            for k, v in request.items():
+                PF.__setattr__(k, v)
+            PF.save()
+            success, message = True, ""
+        except Exception as e:
+            success, message = False, str(e)
+        resp.body = json.dumps({"success": success, "message": message})
+
+
+
 class PathSet_1:
 
     def on_get(self, req, resp):
@@ -102,72 +193,23 @@ class GetListOfImages:
 
 
 
-class PathSet:
-
-    def on_get(self, req, resp):
-        try:
-            PF = PathFinder()
-            content = PF.__dict__
-            success, message = True, ""
-        except Exception as e:
-            content, success, message = {}, False, str(e)
-        data = {'data': content, 'success': success, 'message': message}
-        resp.body = json.dumps(data)
-
-    def on_post(self, req, resp):
-        try:
-            PF = PathFinder()
-            request = decode(req)
-            for k, v in request.items():
-                PF.__setattr__(k, v)
-            PF.save()
-            success, message = True, ""
-        except Exception as e:
-            success, message = False, str(e)
-        resp.body = json.dumps({"success": success, "message": message})
-
-class Projects:
-    def on_get(self,req, resp):
-        pm = ProjectManager()
-        # try:
-        content,success, message = pm.get_projects()
-        # except Exception as e:
-        #     content, success, message = {}, False, str(e)
-        data = {'data': content, 'success': success, 'message': message}
-        resp.body = json.dumps(data)
 
 
-    def on_post(self, req, resp):
-        pm = ProjectManager()
-        request = decode(req)
-        # try:
-        method = request.get('method')
-        if method == 'edit':
-            success, message = pm.edit_project(request)
-        elif method == 'create':
-            success, message = pm.create_project(request)
-        elif method == 'delete':
-            success, message = pm.delete_project(request)
-        elif method == 'current':
-            success, message = pm.current(request)
-        else:
-            success, message = False, "Invalid Method"
 
-        # except Exception as e:
-        #     success, message = False, str(e)
-        resp.body = json.dumps({"success": success, "message": message})
 
 
 
 
 
 app = falcon.API()
+app.add_route('/login', Login())
+app.add_route('/projects', Projects())
 app.add_route('/paths', PathSet())
 app.add_route('/stats', GetStats())
 app.add_route('/rename', RenameLabel())
 app.add_route('/delete', DeleteLabel())
 app.add_route('/getimagebylabel', GetListOfImages())
-app.add_route('/projects', Projects())
+
 
 
 print('ready')
