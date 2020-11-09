@@ -6,10 +6,8 @@ import json
 from utils.path_manager import PathFinder
 
 class Saver:
-    def __init__(self):
-        self.PF = PathFinder()
-    
     def upload(self, files, filetype):
+        self.PF = PathFinder()
         if filetype == 'images':
             fbasepath = self.PF.imageFolder
             self.save(files, fbasepath)

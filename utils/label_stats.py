@@ -5,7 +5,7 @@ from utils.path_manager import PathFinder
 from utils.xml_utils import editXMLBatch, flattenXML,DeleteXMLBatch
 from utils.txt_utils import TxtExtract, EditClasses, DeleteClass
 
-PF = PathFinder()
+
 
 """XML UTILS"""
 
@@ -18,7 +18,7 @@ class StatMaster:
         self.annotation_info = {}
         self.df = []
         self.attributes = pd.DataFrame()
-        self.loader()
+        self.PF = PathFinder()
 
     def getMetaDF(self, baseDir, annotation_format='xml'):
         annotation_format = '.' + annotation_format
@@ -47,8 +47,8 @@ class StatMaster:
 
     def loader(self):
         print('Loader')
-        PF.load()
-        self.getMetaDF(PF.annotationFolder, PF.annotationFormat)
+        self.PF.load()
+        self.getMetaDF(self.PF.annotationFolder, self.PF.annotationFormat)
         self.attributes = self.df.drop(metadata, 1)
         self.attrCount = {}
         for att in self.attributes.columns:
@@ -106,11 +106,11 @@ class StatMaster:
         return {'total': len(null_annotations), 'images': null_annotations}
 
     def get_missing_annotations(self):
-        files = os.listdir(PF.imageFolder)
+        files = os.listdir(self.PF.imageFolder)
         missing_annotations = []
         for file in files:
             ff_flag = 0
-            for fformat in PF.imgFormat:
+            for fformat in self.PF.imgFormat:
                 if fformat in file:
                     ff_flag = 1
                     break
@@ -118,7 +118,7 @@ class StatMaster:
                 continue
 
             imname = file.split('.' + fformat)[0]
-            annotation_filename = imname + '.' + PF.annotationFormat
+            annotation_filename = imname + '.' + self.PF.annotationFormat
             if annotation_filename not in files:
                 missing_annotations.append(file)
         return {'total': len(missing_annotations), 'images': missing_annotations}
@@ -137,10 +137,10 @@ class StatMaster:
         for c in content:
             oldname = c.get('oldName', '')
             newname = c.get('newName', '')
-            if PF.annotationFormat == 'xml':
+            if self.PF.annotationFormat == 'xml':
                 att_paths_ = self.filterPath(oldname)
                 editXMLBatch(att_paths_, oldname, newname)
-            elif PF.annotationFormat == 'txt':
+            elif self.PF.annotationFormat == 'txt':
                 EC.rename(oldname,newname)
 
             self.loader()
@@ -156,13 +156,13 @@ class StatMaster:
         if len(notfound):
             return False, f"Labels {notfound} not found, please check the spelling."
 
-        if PF.annotationFormat == 'xml':
+        if self.PF.annotationFormat == 'xml':
             for c in content:
                 oldname = c.get('oldName', '')
                 att_paths_ = self.filterPath(oldname)
                 DeleteXMLBatch(att_paths_, oldname)
 
-        if PF.annotationFormat == 'txt':
+        if self.PF.annotationFormat == 'txt':
 
             # return False, "Implementation in progress"
             DC = DeleteClass()

@@ -4,7 +4,7 @@ import json
 import os
 import cv2
 
-PF = PathFinder()
+
 
 """Bounding Box Class"""
 class BoundingBoxTXT:
@@ -44,10 +44,11 @@ class TextFile:
 
 class TxtExtract:
     def __init__(self):
-        PF.load()
+        self.PF = PathFinder()
+        self.PF.load()
 
     def load_classes(self):
-        with open(PF.classesPath, 'r') as f:
+        with open(self.PF.classesPath, 'r') as f:
             labels = f.readlines()
 
         self.classes = {}
@@ -58,15 +59,15 @@ class TxtExtract:
     def get_corr_image(self, fpath):
         name = os.path.basename(fpath)
         name = name.split('.txt')[0]
-        images = os.listdir(PF.imageFolder)
+        images = os.listdir(self.PF.imageFolder)
         found = 0
-        for fformat in PF.imgFormat:
+        for fformat in self.PF.imgFormat:
             image_name = f'{name}.{fformat}'
             if image_name in images:
                 found = 1
                 break
         if found:
-            ipath = os.path.join(PF.imageFolder, image_name)
+            ipath = os.path.join(self.PF.imageFolder, image_name)
             img = cv2.imread(ipath)
             height, width, depth = img.shape
             return ipath, height, width, depth
@@ -96,8 +97,9 @@ class TxtExtract:
 class EditClasses:
     def rename(self, oldname, newname):
         print(oldname, newname)
-        PF.load()
-        with open(PF.classesPath, 'r') as f:
+        self.PF = PathFinder()
+        self.PF.load()
+        with open(self.PF.classesPath, 'r') as f:
             labels = f.readlines()
         new_labels = []
         change = False
@@ -110,19 +112,20 @@ class EditClasses:
                 new_labels.append(label)
 
         if change:
-            with open(PF.classesPath, 'w') as f:
+            with open(self.PF.classesPath, 'w') as f:
                 pass
 
             for label in new_labels:
-                with open(PF.classesPath, 'a') as f:
+                with open(self.PF.classesPath, 'a') as f:
                     f.write(label + '\n')
 
 
 class DeleteClass:
     def delete(self, oldnames):
         """creationm"""
-        PF.load()
-        with open(PF.classesPath, 'r') as f:
+        self.PF = PathFinder()
+        self.PF.load()
+        with open(self.PF.classesPath, 'r') as f:
             labels = f.readlines()
 
         current_classes = {}
@@ -143,11 +146,11 @@ class DeleteClass:
 
         """refresh"""
 
-        for file in os.listdir(PF.annotationFolder):
-            if not '.' + PF.annotationFormat in file or file == 'classes.txt' or '.DS' in file:
+        for file in os.listdir(self.PF.annotationFolder):
+            if not '.' + self.PF.annotationFormat in file or file == 'classes.txt' or '.DS' in file:
                 continue
 
-            fpath = os.path.join(PF.annotationFolder, file)
+            fpath = os.path.join(self.PF.annotationFolder, file)
             with open(fpath, 'r') as f:
                 lines = f.readlines()
 
@@ -164,7 +167,7 @@ class DeleteClass:
                 else:
                     print(label)
 
-            outFolder = PF.outputFolder if len(PF.outputFolder) else PF.imageFolder
+            outFolder = self.PF.outputFolder if len(self.PF.outputFolder) else self.PF.imageFolder
             out_path = os.path.join(outFolder, file)
 
             with open(out_path, 'w') as f:
@@ -174,11 +177,11 @@ class DeleteClass:
                 with open(out_path, 'a') as f:
                     f.write(text + '\n')
 
-        with open(PF.classesPath, 'w') as f:
+        with open(self.PF.classesPath, 'w') as f:
             pass
 
         for label in modified_labels:
-            with open(PF.classesPath, 'a') as f:
+            with open(self.PF.classesPath, 'a') as f:
                 f.write(label + '\n')
 
 def convert_to_yolo(W,H, xmin, ymin,xmax, ymax):
@@ -196,9 +199,9 @@ def convert_to_yolo(W,H, xmin, ymin,xmax, ymax):
 
 class EditTextFile:
     def __init__(self):
-       self.TE = TxtExtract()
-       self.convert_to_idx()
-
+        self.TE = TxtExtract()
+        self.convert_to_idx()
+        self.PF = PathFinder()
     def get_bounding_boxes(self,txt_path):
         _, self.text_file  = self.TE.extract(txt_path)
         original_boxes, names = [], []
@@ -210,8 +213,8 @@ class EditTextFile:
 
     def convert_to_idx(self):
         """creationm"""
-        PF.load()
-        with open(PF.classesPath, 'r') as f:
+        self.PF.load()
+        with open(self.PF.classesPath, 'r') as f:
             labels = f.readlines()
 
         classes,self.inv_classes = {}, {}

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  auggy:
+    image:  auggy
+    container_name: auggy
+    ports:
+      - 8099:8099
+      - 8088:8088

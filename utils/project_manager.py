@@ -3,7 +3,6 @@ import json
 import os
 from shutil import copyfile
 
-
 project_config_file = 'project_config.json'
 
 class ProjectManager:
@@ -14,9 +13,11 @@ class ProjectManager:
         with open(project_config_file, 'r') as f:
                 self.project_config = json.load(f)
 
+    def save(self):
+        with open(project_config_file, 'w') as f:
+            json.dump(self.project_config, f)
 
     def current(self, request):
-        self.load()
         projects, ret, msg = self.get_projects()
         if not ret:
             return ret, msg
@@ -52,7 +53,6 @@ class ProjectManager:
         name = request.get('name', '')
         old_name = request.get('oldName', name)
         
-
         project_names = {}
         for k,v in projects.items():
             project_names[v['name']] = k
@@ -68,20 +68,8 @@ class ProjectManager:
         self.save()
         return True, ''
 
-    def create_project_structure(self, name):
-        
-        if not os.path.exists('data/'):
-            os.makedirs('data/')
-        os.makedirs(f'data/{name}')
-        os.makedirs(f'data/{name}/original')
-        os.makedirs(f'data/{name}/input_images')
-        os.makedirs(f'data/{name}/input_annotations')  
-        os.makedirs(f'data/{name}/output_images')
-        os.makedirs(f'data/{name}/output_annotations')  
-        self.set_initial_config(name)
-        
-
-    def set_initial_config(self,name):
+    @staticmethod
+    def set_initial_config(name):
         with open('templates/config.json', 'r') as f:
                 template_config = json.load(f)
                 
@@ -92,6 +80,17 @@ class ProjectManager:
         with open(f'data/{name}/config.json', 'w') as f:
             json.dump(template_config, f)
 
+    def create_project_structure(self, name):
+        if not os.path.exists('data/'):
+            os.makedirs('data/')
+        os.makedirs(f'data/{name}')
+        os.makedirs(f'data/{name}/original')
+        os.makedirs(f'data/{name}/input_images')
+        os.makedirs(f'data/{name}/input_annotations')  
+        os.makedirs(f'data/{name}/output_images')
+        os.makedirs(f'data/{name}/output_annotations')  
+        ProjectManager.set_initial_config(name)
+        
 
     def create_project(self,request):
         self.load()
@@ -121,7 +120,6 @@ class ProjectManager:
     def delete_project(self, request):
         self.load()
         projects = self.project_config.get('projects', {})
-
         project_names = {}
         for k,v in projects.items():
             project_names[v['name']] = k
@@ -136,6 +134,4 @@ class ProjectManager:
         self.save()
         return True, ''
 
-    def save(self):
-        with open(project_config_file, 'w') as f:
-            json.dump(self.project_config, f)
+    

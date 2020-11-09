@@ -1,12 +1,12 @@
-from utils.path_manager import PathFinder
 from utils.project_manager import ProjectManager
+from utils.path_manager import PathFinder
 from utils.label_stats import StatMaster
-import falcon
+
 from falcon.http_status import HTTPStatus
+import falcon
 import json
 import os
 
-print('init')
 
 def decode(req):
     body = req.stream.read()
@@ -18,6 +18,9 @@ def decode(req):
 
 
 class Login:
+    """
+    Login Management : Not Implimented
+    """
     def on_post(self, req, resp):
         success = True
         message = "Feature yet to be implimented"
@@ -58,24 +61,16 @@ class Projects:
         resp.body = json.dumps({"success": success, "message": message})
 
 class Upload:
+    """
+    Sets Annotation foramt
+    """
     def on_post(self, req, resp):
         try:
             request = decode(req)
-            source_image_folder = request.get('imageFolder','')
-            assert len(source_image_folder), 'Image folder is empty'
-
-            source_annotation_folder = request.get('annotationFolder','')
-            assert len(source_annotation_folder), 'Annotation folder is empty'
-
             annotation_format = request.get('annotationFormat','')
             assert len(annotation_format), 'Annotation format is empty'
             PF = PathFinder()
             PF.__setattr__('annotationFormat', annotation_format)
-
-            if annotation_format == 'txt':
-                classes_path = request.get('classesPath','')
-                assert len(classesPath), 'Classes path is empty'
-
             success, message = True, ''
         except Exception as e:
             success, message = False, str(e)
@@ -108,33 +103,10 @@ class PathSet:
 
 
 
-class PathSet_1:
-
-    def on_get(self, req, resp):
-        try:
-            PF = PathFinder()
-            content = PF.__dict__
-            success, message = True, ""
-        except Exception as e:
-            content, success, message = {}, False, str(e)
-        data = {'data': content, 'success': success, 'message': message}
-        resp.body = json.dumps(data)
-
-    def on_post(self, req, resp):
-        try:
-            PF = PathFinder()
-            request = decode(req)
-            for k, v in request.items():
-                PF.__setattr__(k, v)
-            PF.save()
-            success, message = True, ""
-        except Exception as e:
-            success, message = False, str(e)
-        resp.body = json.dumps({"success": success, "message": message})
-
-
 class GetStats:
-        
+    """
+    Get Image and label statistics
+    """
     def on_get(self, req, resp):
         try:
             self.PF = PathFinder()
@@ -150,9 +122,10 @@ class GetStats:
         data = {'data': content, 'success': success, 'message': message}
         resp.body = json.dumps(data)
 
-
 class RenameLabel:
-
+    """
+    Rename a label
+    """
     def on_post(self, req, resp):
         try:
             self.PF = PathFinder()
@@ -165,20 +138,24 @@ class RenameLabel:
         resp.body = json.dumps({'success': success, 'message': message})
 
 class DeleteLabel:
-
+    """
+    Delete a label
+    """
     def on_post(self, req, resp):
         self.PF = PathFinder()
         self.sm = StatMaster()
-        # try:
-        request = decode(req)
-        content = request.get('labels', [])
-        success, message = self.sm.delete_label(content)
-        # except Exception as e:
-        # content, success, message = {}, False, str(e)
+        try:
+            request = decode(req)
+            content = request.get('labels', [])
+            success, message = self.sm.delete_label(content)
+        except Exception as e:
+            content, success, message = {}, False, str(e)
         resp.body = json.dumps({'success': success, 'message': message})
 
 class GetListOfImages:
-
+    """
+    Get list of images in a class
+    """
     def on_post(self, req, resp):
         self.PF = PathFinder()
         self.sm = StatMaster()
@@ -188,21 +165,13 @@ class GetListOfImages:
             content,success, message = self.sm.get_image_path_by_label(class_name)
         except Exception as e:
             content, success, message = [], False, str(e)
-
         data = {'data': content, 'success': success, 'message': message}
         resp.body = json.dumps(data)
 
-
-
-
-
-
-
-
-
-
-
 class HandleCORS(object):
+    """
+    Handle CORS permissions for front end
+    """
     def process_request(self, req, resp):
         resp.set_header('Access-Control-Allow-Origin', '*')
         resp.set_header('Access-Control-Allow-Methods', '*')
@@ -210,10 +179,12 @@ class HandleCORS(object):
         resp.set_header('Access-Control-Max-Age', 1728000)  # 20 days
         if req.method == 'OPTIONS':
             raise HTTPStatus(falcon.HTTP_200, body='\n')
+
 app = falcon.API(middleware=[HandleCORS() ])
+
 app.add_route('/login', Login())
-app.add_route('/projects', Projects())
 app.add_route('/paths', PathSet())
+app.add_route('/projects', Projects())
 app.add_route('/stats', GetStats())
 app.add_route('/rename', RenameLabel())
 app.add_route('/delete', DeleteLabel())
@@ -221,8 +192,7 @@ app.add_route('/getimagebylabel', GetListOfImages())
 
 
 
-print('ready')
-# For windows
+print('Running API')
 if os.name == 'nt':
     from waitress import serve
     serve(app, host='0.0.0.0', port=8099) 

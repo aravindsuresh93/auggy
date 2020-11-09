@@ -12,7 +12,6 @@ class PathFinder:
             project_config = json.load(f)
         current = project_config.get('current', '')
         assert len(current), "Current project not set"
-
         self.config_file = f'data/{current}/config.json'
 
     def load(self):

@@ -1,3 +1,4 @@
+import time
 from PIL import Image, ImageEnhance, ImageFilter
 import numpy as np
 import random
@@ -28,7 +29,8 @@ Adjust gamma to change brightness
 def adjust_gamma(image, gamma=1.0):
     gamma = 0.1 if gamma == 0 else gamma
     invGamma = 1.0 / gamma
-    table = np.array([((i / 255.0) ** invGamma) *255 for i in np.arange(0, 256)]).astype("uint8")
+    table = np.array([((i / 255.0) ** invGamma) *
+                      255 for i in np.arange(0, 256)]).astype("uint8")
     return cv2.LUT(image, table)
 
 
@@ -257,9 +259,10 @@ convert to B&W
 """
 
 
-def random_gray(img, minimum_gamma,maximum_gamma):
-    minimum_gamma,maximum_gamma =  minimum_gamma * 100 ,maximum_gamma*100
-    img = cv2.cvtColor(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+def random_gray(img, minimum_gamma, maximum_gamma):
+    minimum_gamma, maximum_gamma = minimum_gamma * 100, maximum_gamma*100
+    img = cv2.cvtColor(cv2.cvtColor(
+        img, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
     img = adjust_gamma(img, gamma=float(random.randint(20, 100) / 100))
     return img
 
@@ -268,6 +271,7 @@ def random_gray(img, minimum_gamma,maximum_gamma):
 randomly scale
 """
 
+
 def calculate_scale(minval=1, maxval=4, div=100):
     minval = minval * 100
     maxval = maxval * 100
@@ -275,15 +279,18 @@ def calculate_scale(minval=1, maxval=4, div=100):
     fy = random.randint(minval, maxval) / div
     return fx, fy
 
-def randomScale(img, bboxes, fx,fy):
+
+def randomScale(img, bboxes, fx, fy):
     retBoxes = []
     img = cv2.resize(img, None, fx=fx, fy=fy)
     for e, bbox in enumerate(bboxes):
-        xmin, ymin, xmax, ymax,name = bbox[0], bbox[1], bbox[2], bbox[3], bbox[4]
-        xmin, xmax, ymin, ymax = int(fx * xmin), int(fx * xmax), int(fy * ymin), int(fy * ymax)
+        xmin, ymin, xmax, ymax, name = bbox[0], bbox[1], bbox[2], bbox[3], bbox[4]
+        xmin, xmax, ymin, ymax = int(
+            fx * xmin), int(fx * xmax), int(fy * ymin), int(fy * ymax)
         bbox = [xmin, ymin, xmax, ymax, name]
         retBoxes.append(bbox)
     return img, retBoxes
+
 
 def adjust_contrast(image, gamma):
     image = Image.fromarray(image)
@@ -292,12 +299,14 @@ def adjust_contrast(image, gamma):
     image = np.asarray(image)
     return image
 
+
 def adjust_sharpness(image, gamma):
     image = Image.fromarray(image)
     enhancer = ImageEnhance.Sharpness(image)
     image = enhancer.enhance(gamma)
     image = np.asarray(image)
     return image
+
 
 def adjust_sauration(image, gamma):
     image = Image.fromarray(image)
@@ -306,11 +315,13 @@ def adjust_sauration(image, gamma):
     image = np.asarray(image)
     return image
 
+
 def adjust_blur(image, gamma):
     image = Image.fromarray(image)
     image = image.filter(ImageFilter.GaussianBlur(gamma))
     image = np.asarray(image)
     return image
+
 
 def rotate_bound(image, angle):
     (h, w) = image.shape[:2]
@@ -325,34 +336,30 @@ def rotate_bound(image, angle):
     return cv2.warpAffine(image, M, (nW, nH)), nH, nW
 
 
-import time
 def horizontal_rotate(image, bboxes, angle):
     boxes = []
     if angle == -90:
-        img,nH, nW = rotate_bound(image, -90)
-    
+        img, nH, nW = rotate_bound(image, -90)
+
         for box in bboxes:
-            xmin, ymin, xmax, ymax,name= box
+            xmin, ymin, xmax, ymax, name = box
             nymin = nH - xmax
             nxmin = ymin
             nxmax = ymax
             nymax = nH - xmin
-            boxes.append([nxmin, nymin, nxmax, nymax,name])
-    
+            boxes.append([nxmin, nymin, nxmax, nymax, name])
+
     if angle == 90:
-        img,nH, nW = rotate_bound(image, 90)
-    
+        img, nH, nW = rotate_bound(image, 90)
+
         for box in bboxes:
-            xmin, ymin, xmax, ymax,name= box
+            xmin, ymin, xmax, ymax, name = box
             nymin = xmin
             nxmin = nW - ymax
             nxmax = nW - ymin
             nymax = xmax
-            boxes.append([nxmin, nymin, nxmax, nymax,name])
+            boxes.append([nxmin, nymin, nxmax, nymax, name])
     return img, boxes
-    
-
-
 
 
 """
@@ -366,11 +373,14 @@ def randomTransform(img, bboxes, dolist=[]):
     if 'RandomScale' in dolist:
         img, bboxes = randomScale(img.copy(), bboxes.copy())
     if 'RandomTranslate' in dolist:
-        img, bboxes = RandomTranslate(float(random.randint(0, 10) / 100), diff=True)(img.copy(), bboxes.copy())
+        img, bboxes = RandomTranslate(float(random.randint(
+            0, 10) / 100), diff=True)(img.copy(), bboxes.copy())
     if 'RandomRotate' in dolist:
-        img, bboxes = RandomRotate(random.randint(-360, 360))(img.copy(), bboxes.copy())
+        img, bboxes = RandomRotate(
+            random.randint(-360, 360))(img.copy(), bboxes.copy())
     if 'RandomShear' in dolist:
-        img, bboxes = RandomShear(float(random.randint(-40, 40) / 100))(img.copy(), bboxes.copy())  # default -10,10
+        img, bboxes = RandomShear(float(
+            random.randint(-40, 40) / 100))(img.copy(), bboxes.copy())  # default -10,10
     if 'Resize' in dolist:
         img, bboxes = Resize(500)(img.copy(), bboxes.copy())
     if 'brightness' in dolist:
@@ -394,7 +404,8 @@ def transform_image(img, bboxes, transform):
     assert len(transformation_type), "Transformation type not available"
 
     transformation_parameters = transform.get("parameters", {})
-    assert len(transformation_parameters), "Transformation parameters not available"
+    assert len(
+        transformation_parameters), "Transformation parameters not available"
 
     transformation_variation = int(transform.get("variation", 0))
     assert transformation_variation, "Number of transformation variations not available"
@@ -412,19 +423,21 @@ def transform_image(img, bboxes, transform):
         minimum_factor = transformation_parameters.get("minimum_factor", 2)
 
         if transformation_method == 'up':
-            fx, fy  = calculate_scale(maxval = maximum_factor, div = 100)
+            fx, fy = calculate_scale(maxval=maximum_factor, div=100)
         elif transformation_method == 'down':
-            fx, fy = calculate_scale(minval = minimum_factor, div = 1000)
+            fx, fy = calculate_scale(minval=minimum_factor, div=1000)
         else:
-            fx, fy = calculate_scale(minval = minimum_factor,maxval = maximum_factor, div = 1000)
+            fx, fy = calculate_scale(
+                minval=minimum_factor, maxval=maximum_factor, div=1000)
         img, bboxes = randomScale(img.copy(), bboxes.copy(), fx, fy)
-    
+
     """Rotate Transformation"""
     if transformation_type == 'rotate':
         minium_angle = transformation_parameters.get("miniumAngle", -90)
         maximum_angle = transformation_parameters.get("maximumAngle", 90)
         print(minium_angle, maximum_angle)
-        img, bboxes = RandomRotate(random.randint(minium_angle, maximum_angle))(img.copy(), bboxes.copy())
+        img, bboxes = RandomRotate(random.randint(
+            minium_angle, maximum_angle))(img.copy(), bboxes.copy())
 
     """Horizontal Rotate Transformation"""
     if transformation_type == 'horizontalRotate':
@@ -436,33 +449,34 @@ def transform_image(img, bboxes, transform):
         elif transformation_method == 'right':
             rotate_angle = 90
         else:
-            rotate_angle = random.choice([-90,90])
-        img, bboxes = horizontal_rotate(img.copy(), bboxes.copy(), rotate_angle)
-    
+            rotate_angle = random.choice([-90, 90])
+        img, bboxes = horizontal_rotate(
+            img.copy(), bboxes.copy(), rotate_angle)
+
     """Vertical Flip Transformation"""
     if transformation_type == 'verticalFlip':
         rotate_angle = 180
         img, bboxes = RandomRotate(rotate_angle)(img.copy(), bboxes.copy())
 
     """Vertical Flip Transformation"""
-    if transformation_type == 'horizontalFlip':    
+    if transformation_type == 'horizontalFlip':
         img, bboxes = HorizontalFlip()(img.copy(), bboxes.copy())
 
     """Random Shear"""
-    if transformation_type == 'randomShear':    
+    if transformation_type == 'randomShear':
         minium_angle = transformation_parameters.get("miniumAngle", -90)
         maximum_angle = transformation_parameters.get("maximumAngle", 90)
-        img, bboxes = RandomShear(float(random.randint(minium_angle, maximum_angle) / 100))(img.copy(), bboxes.copy()) 
+        img, bboxes = RandomShear(float(random.randint(
+            minium_angle, maximum_angle) / 100))(img.copy(), bboxes.copy())
 
     """Resize Box"""
-    if transformation_type == 'resize':  
+    if transformation_type == 'resize':
         inputDimension = transformation_parameters.get("inputDimension", 0)
         assert inputDimension, f"Invalid dimension : {inputDimension}"
 
     """Resize Particular Shape"""
 
-    #Pending
-
+    # Pending
 
     """
     2. Color Transformations
@@ -478,33 +492,36 @@ def transform_image(img, bboxes, transform):
     if transformation_type == "brightness":
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 2))
-        img = adjust_gamma(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
+        img = adjust_gamma(img, gamma=float(random.randint(
+            minium_gamma * 100, maximum_gamma * 100) / 100))
 
     """contrast"""
     if transformation_type == "contrast":
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 2))
-        img = adjust_contrast(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
+        img = adjust_contrast(img, gamma=float(random.randint(
+            minium_gamma * 100, maximum_gamma * 100) / 100))
 
     """sharpness"""
     if transformation_type == "sharpness":
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 2))
-        img = adjust_sharpness(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
-    
+        img = adjust_sharpness(img, gamma=float(random.randint(
+            minium_gamma * 100, maximum_gamma * 100) / 100))
 
     """saturation"""
     if transformation_type == "saturation":
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 2))
-        img = adjust_sauration(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
-    
+        img = adjust_sauration(img, gamma=float(random.randint(
+            minium_gamma * 100, maximum_gamma * 100) / 100))
+
     """blur"""
     if transformation_type == "blur":
         minium_gamma = int(transformation_parameters.get("miniumGamma", 0))
         maximum_gamma = int(transformation_parameters.get("maximumGamma", 5))
-        img = adjust_blur(img, gamma=float(random.randint(minium_gamma * 100, maximum_gamma * 100) / 100))
-
+        img = adjust_blur(img, gamma=float(random.randint(
+            minium_gamma * 100, maximum_gamma * 100) / 100))
 
     """
     3. Misc Transformations
@@ -512,6 +529,5 @@ def transform_image(img, bboxes, transform):
 
     if transformation_type == "randomnoise":
         img, bboxes = put_random_noise(img.copy(), bboxes.copy())
-
 
     return img, bboxes
