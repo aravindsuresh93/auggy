@@ -82,10 +82,9 @@ class TxtExtract:
 
         masterDict = {}
         TFile = TextFile(self.classes, lines, ipath, fpath, width, height, depth)
-        masterDict.update(
-            {'path': TFile.path, 'image_name': TFile.image_name,
-             'image_path': TFile.image_path, 'height': TFile.height,
-             'width': TFile.width, 'depth': TFile.depth})
+        masterDict.update({'path': TFile.path, 'image_name': TFile.image_name,
+                            'image_path': TFile.image_path, 'height': TFile.height,
+                            'width': TFile.width, 'depth': TFile.depth})
 
         for att in TFile.bbox:
             attval = masterDict.get(att.label, 0)
@@ -96,7 +95,6 @@ class TxtExtract:
 
 class EditClasses:
     def rename(self, oldname, newname):
-        print(oldname, newname)
         self.PF = PathFinder()
         self.PF.load()
         with open(self.PF.classesPath, 'r') as f:

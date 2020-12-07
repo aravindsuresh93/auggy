@@ -14,6 +14,7 @@ from utils.txt_utils import EditTextFile
 
 from augment_utils import randomTransform, transform_image
 from utils.path_manager import PathFinder
+
 PF = PathFinder()
 
 
@@ -67,7 +68,7 @@ def augment(ipath, annotation_path, outname, image_name, image_format, transform
 
 
 
-def main():
+def run_process():
     files = os.listdir(PF.imageFolder)
     files_list = []
     formatlist = []
@@ -79,13 +80,9 @@ def main():
 
     FAILED_LIST = []
     for ef, f in enumerate(files_list):
-        print(f, f'   [{ef+1}/{len(files_list)}]')
-
         ipath = os.path.join(PF.imageFolder, f) + '.' + formatlist[ef]
         annotation_path = os.path.join(PF.annotationFolder, f) + '.' +PF.annotationFormat
-
         n = random.randint(0, 3)
-
         transform_data = PF.transformationData.get("transform", {})
         assert len(transform_data), "Transromation data not available"
 
@@ -102,7 +99,12 @@ def main():
 
             for j in range(transformation_variation):
                 dolist = [transormation_type]
-                new_path = os.path.join(PF.augmentationOutputFolder, f"{f}_{transormation_type}_{str(j)}_{str(i)}")
+                if PF.annotationFormat == "xml":
+                    output_annotation_folder = PF.outputXMLFolder
+                elif PF.annotationFormat == "txt":
+                    output_annotation_folder = PF.outputTXTFolder
+                    
+                new_path = os.path.join(output_annotation_folder, f"{f}_{transormation_type}_{str(j)}_{str(i)}")
                 image_name = f"{f}_{transormation_type}_{str(j)}_{str(i)}.{formatlist[ef]}"
 
             # try:
@@ -113,6 +115,6 @@ def main():
             #     continue
         break
 
-main()
+run_process()
 
 

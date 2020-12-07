@@ -5,7 +5,6 @@ import pandas as pd
 import os
 
 
-
 """
 Edit XML after augmentation and return root
 """
@@ -65,11 +64,11 @@ class XMLEditor:
             ymin = 1 if ymin <= 0 else ymin
             xmax = 1 if xmax <= 0 else xmax
             ymax = 1 if ymax <= 0 else ymax
-            
+
             ymax = height - 1 if (ymax >= height) else ymax
             xmax = width - 1 if (xmax >= width) else xmax
             label = names[bbox[4]]
-            
+
             self.edit_single_box(xmin, ymin, xmax, ymax, ob, label)
 
     def edit(self, bboxes, names, original_bbox, filename, height, width):
@@ -152,10 +151,9 @@ class ParseXML:
 def flattenXML(file):
     masterDict = {}
     xml = ParseXML(file)
-    masterDict.update(
-        {'path': xml.path, 'image_name': xml.image_name,
-         'image_path': xml.image_path, 'height': xml.height,
-         'width': xml.width, 'depth': xml.depth})
+    masterDict.update(  {'path': xml.path, 'image_name': xml.image_name,
+                        'image_path': xml.image_path, 'height': xml.height,
+                        'width': xml.width, 'depth': xml.depth})
 
     for att in xml.bbox:
         attval = masterDict.get(att.label, 0)

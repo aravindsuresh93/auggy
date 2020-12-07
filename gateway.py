@@ -118,7 +118,6 @@ class GetStats:
             success, message = True, ""
         except Exception as e:
             content, success, message = {}, False, str(e)
-
         data = {'data': content, 'success': success, 'message': message}
         resp.body = json.dumps(data)
 
@@ -192,7 +191,7 @@ app.add_route('/getimagebylabel', GetListOfImages())
 
 
 
-print('Running API')
+
 if os.name == 'nt':
     from waitress import serve
     serve(app, host='0.0.0.0', port=8099) 

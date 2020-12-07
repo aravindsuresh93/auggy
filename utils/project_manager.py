@@ -76,6 +76,10 @@ class ProjectManager:
         template_config['imageFolder'] = f'data/{name}/input_images'
         template_config['annotationFolder'] = f'data/{name}/input_annotations'
         template_config['classesPath'] = f'data/{name}/classes.txt'
+        template_config['outputFolder'] = f'data/{name}/output_images'
+        template_config['outputXMLFolder'] = f'data/{name}/output_xmls'
+        template_config['outputTXTFolder'] = f'data/{name}/output_txts'
+        template_config['baseDir'] = f'data/{name}'
 
         with open(f'data/{name}/config.json', 'w') as f:
             json.dump(template_config, f)
@@ -88,7 +92,8 @@ class ProjectManager:
         os.makedirs(f'data/{name}/input_images')
         os.makedirs(f'data/{name}/input_annotations')  
         os.makedirs(f'data/{name}/output_images')
-        os.makedirs(f'data/{name}/output_annotations')  
+        os.makedirs(f'data/{name}/output_xmls')  
+        os.makedirs(f'data/{name}/output_txts')  
         ProjectManager.set_initial_config(name)
         
 

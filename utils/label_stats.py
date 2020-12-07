@@ -2,9 +2,8 @@ import pandas as pd
 import os
 
 from utils.path_manager import PathFinder
-from utils.xml_utils import editXMLBatch, flattenXML,DeleteXMLBatch
+from utils.xml_utils import editXMLBatch, flattenXML, DeleteXMLBatch
 from utils.txt_utils import TxtExtract, EditClasses, DeleteClass
-
 
 
 """XML UTILS"""
@@ -26,15 +25,13 @@ class StatMaster:
         self.annotation_info = {}
         self.annotation_files = [file for file in os.listdir(baseDir) if annotation_format in file]
 
-
-        if annotation_format == '.xml':
+        if annotation_format == 'xml':
             for file in self.annotation_files:
                 masterdict, info = flattenXML(os.path.join(baseDir, file))
                 data.append(masterdict)
                 self.annotation_info[file] = info
 
-
-        if annotation_format == '.txt':
+        if annotation_format == 'txt':
             TE = TxtExtract()
             for file in self.annotation_files:
                 if file == 'classes.txt':
@@ -46,7 +43,6 @@ class StatMaster:
         self.df = pd.DataFrame(data)
 
     def loader(self):
-        print('Loader')
         self.PF.load()
         self.getMetaDF(self.PF.annotationFolder, self.PF.annotationFormat)
         self.attributes = self.df.drop(metadata, 1)
@@ -86,15 +82,6 @@ class StatMaster:
     def get_total_images(self):
         return len(self.df)
 
-    def get_image_info(self):
-        self.loader()
-        total_images = self.get_total_images()
-        total_annotations = self.get_total_annotations()
-        nullannotations = self.get_null_annotations()
-        missing = self.get_missing_annotations()
-        return {'images': total_images, 'annotations': total_annotations, 'noAnnotationFile': missing,
-                'nullAnnotations': nullannotations}
-
     def get_null_annotations(self):
         labeldf = self.df.drop(metadata, 1)
         cols = labeldf.columns
@@ -123,6 +110,16 @@ class StatMaster:
                 missing_annotations.append(file)
         return {'total': len(missing_annotations), 'images': missing_annotations}
 
+    def get_image_info(self):
+        self.loader()
+        total_images = self.get_total_images()
+        total_annotations = self.get_total_annotations()
+        nullannotations = self.get_null_annotations()
+        missing = self.get_missing_annotations()
+        return {'images': total_images, 'annotations': total_annotations, 
+                'noAnnotationFile': missing,'nullAnnotations': nullannotations}
+
+
     def rename_label(self, content):
         notfound = []
         for c in content:
@@ -141,8 +138,7 @@ class StatMaster:
                 att_paths_ = self.filterPath(oldname)
                 editXMLBatch(att_paths_, oldname, newname)
             elif self.PF.annotationFormat == 'txt':
-                EC.rename(oldname,newname)
-
+                EC.rename(oldname, newname)
             self.loader()
         return True, ""
 
@@ -193,7 +189,8 @@ class StatMaster:
                 if xmin < 0 or ymin < 0 or xmax < 0 or ymax < 0 or xmin > width or ymin > height or xmax > width or ymax > height:
                     leakedbox.append(name)
                     leakedbox.append({'width': width, 'height': height})
-                    leakedbox.append({'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax})
+                    leakedbox.append(
+                        {'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax})
 
             if len(leakedbox):
                 leak.update({file: leakedbox})
