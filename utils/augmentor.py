@@ -4,122 +4,136 @@ import random
 import cv2
 import os
 
-# class Augment:
-#     def __init__(self, annotation_type):
-#         self.annotation_type = annotation_type
 
-#     def transform()
+class Augment:
+    def __init__():
+        self.bbox_params = A.BboxParams(format='pascal_voc')
 
-cpath = r"C:\Users\ds\Desktop\Projects\test_images\yolo\classes.txt"
-ipath = r"C:\Users\ds\Desktop\Projects\test_images\yolo\JIY4434.jpg"
-tpath = r"C:\Users\ds\Desktop\Projects\test_images\yolo\JIY4434.txt"
+    """
+    Pixel Level
+    """
 
-"""Bounding Box Class"""
-class BoundingBoxTXT:
-    def __init__(self, label, xmin, ymin, xmax, ymax):
-        self.label = label
-        self.xmin = xmin
-        self.ymin = ymin
-        self.xmax = xmax
-        self.ymax = ymax
-        self.h = ymax - ymin
-        self.w = xmax - xmin
+    def blur(self, blur_limit):
+        self.transform = A.Compose([A.Blur(blur_limit=(3, blur_limit), p=1)], bbox_params=self.bbox_params)
 
-"""Converts TXT into unified class object"""
-class TextFile:
-    def __init__(self, classes, lines, ipath, fpath, width, height, depth):
-        self.image_name = os.path.basename(ipath)
-        self.image_path = ipath
-        self.path = fpath
-        self.width = width
-        self.height = height
-        self.depth = depth
-        self.bbox = []
-        for line in lines:
-            line = line.strip()
-            data = line.split()
-            label = classes[int(data[0])]
-            bbox_width = float(data[3]) * width
-            bbox_height = float(data[4]) * height
-            center_x = float(data[1]) * width
-            center_y = float(data[2]) * height
-            xmin = int(center_x - (bbox_width / 2))
-            ymin = int(center_y - (bbox_height / 2))
-            xmax = int(center_x + (bbox_width / 2))
-            ymax = int(center_y + (bbox_height / 2))
-            
-            self.bbox.append(BoundingBoxTXT(label, xmin, ymin, xmax, ymax))
+    def clahe(self, clip_limit):
+        self.transform = A.Compose([A.CLAHE(clip_limit=clip_limit, tile_grid_size=(8, 8), p=1)], bbox_params=self.bbox_params)
 
+    def ChannelDropout(self, channel_drop_range, fill_value):
+        self.transform = A.Compose([A.ChannelDropout(channel_drop_range=channel_drop_range,fill_value= fill_value, p=1)], bbox_params=self.bbox_params)
 
-class TxtExtract:
+    def ChannelShuffle(self):
+        self.transform = A.Compose([A.ChannelShuffle(p=1)], bbox_params=self.bbox_params)
 
-    def load_classes(self):
-        with open(r"C:\Users\ds\Desktop\Projects\test_images\yolo\classes.txt", 'r') as f:
-            labels = f.readlines()
+    def ChannelShuffle(self, brightness, contrast, saturation, hue):
+        self.transform = A.Compose([A.ChannelShuffle(brightness=brightness, contrast=contrast,
+                                                 saturation=saturation, hue=hue, p=1)], bbox_params=self.bbox_params)
+    
+    def Downscale(self, scale_min, scale_max):
+        self.transform = A.Compose([A.Downscale(scale_min=scale_min, scale_max=scale_max p=1)], bbox_params=self.bbox_params)
 
-        self.classes = {}
-        for e, label in enumerate(labels):
-            label = label.replace('\n', '')
-            self.classes[e] = label
+    def Equalize(self, mode, by_channels):
+        self.transform = A.Compose([A.Downscale(mode=mode, by_channels=by_channels p=1)], bbox_params=self.bbox_params)
 
-    def get_corr_image(self, fpath):
-        name = os.path.basename(fpath)
-        name = name.split('.txt')[0]
-        images = os.listdir(r"C:\Users\ds\Desktop\Projects\test_images\yolo")
-        found = 0
-        for fformat in ['jpg']:
-            image_name = f'{name}.{fformat}'
-            if image_name in images:
-                found = 1
-                break
-        if found:
-            ipath = os.path.join(r"C:\Users\ds\Desktop\Projects\test_images\yolo", image_name)
-            img = cv2.imread(ipath)
-            height, width, depth = img.shape
-            return ipath, height, width, depth
-        return '', 0, 0, 0
+    """
+    Workflow
+    """
+    def response(transformed):
+        boxes = []
+        for e, box in enumerate(transformed["bboxes"]):
+            box += transformed["category_ids"][e]
+            boxes.append(box)
+        image = transformed['image']
+        return image, boxes
 
-    def extract(self, fpath):
-        self.load_classes()
-        with open(fpath, 'r') as f:
-            lines = f.readlines()
-        ipath, height, width, depth = self.get_corr_image(fpath)
+    def request(transform_data):
+        self.transformation_type = transform_data.get("type", "")
+        assert len(transformation_type), "Transformation type not available"
 
-        masterDict = {}
-        TFile = TextFile(self.classes, lines, ipath, fpath, width, height, depth)
-        masterDict.update({'path': TFile.path, 'image_name': TFile.image_name,
-                            'image_path': TFile.image_path, 'height': TFile.height,
-                            'width': TFile.width, 'depth': TFile.depth})
+        self.transformation_parameters = transform_data.get("parameters", {})
+        assert len(transformation_parameters), "Transformation parameters not available"
 
-        for att in TFile.bbox:
-            attval = masterDict.get(att.label, 0)
-            attval += 1
-            masterDict.update({att.label: attval})
-        return masterDict, TFile
+    def get_arg(argname, default_val):
+        return self.transformation_parameters.get(argname, default_val)
+
+    def process(self, image, boxes, transform_data):
+        self.request(transform_data)
+
+        """Blur"""
+        if self.transformation_type == "blur":
+            self.blur(blur_limit=self.get_arg("blur_limit", 3))
+
+        """CLAHE"""
+        if self.transformation_type == "clahe":
+            self.clahe(self.get_arg("clip_limit", 4))
+
+        """ChannelDropout"""
+        if self.transformation_type == "ChannelDropout":fill_value
+            self.ChannelDropout(self.get_arg("channel_drop_range", (1, 1)), self.get_arg("fill_value", 0))
+
+        """ChannelShuffle"""
+        if self.transformation_type == "ChannelShuffle":
+            self.ChannelShuffle()
+
+        """ColorJitter"""
+        if self.transformation_type == "ColorJitter":
+            self.ColorJitter(self.get_arg("brightness", 0.2), 
+            self.get_arg("contrast", 0.2),
+            self.get_arg("saturation", 0.2),
+            self.get_arg("hue", 0.2))
+
+        """Downscale"""
+        if self.transformation_type == "Downscale":
+            self.Downscale(self.get_arg("scale_min", 0.25), self.get_arg("scale_max", 0.25))
+
+        """Equalize"""
+        if self.transformation_type == "Equalize":
+            self.Equalize(self.get_arg("mode", "cv"), self.get_arg("by_channels", True))
 
 
-def convert_to_aub(txt_obj):
-    boxes = []
-    for box in txt_obj.bbox:
-        boxes.append([box.xmin, box.ymin, box.xmax,box.ymax, box.label])
-    return boxes
-        
+        transformed = self.transform(image=image, bboxes=boxes)
+        return self.response(transformed)
 
 
-
-TE = TxtExtract()
-f, tobj = TE.extract(tpath)
-
-boxes = convert_to_aub(tobj)
-
-
-transform = A.Compose(
-    [ A.ShiftScaleRotate(p=0.5)],
-    bbox_params=A.BboxParams(format='pascal_voc'),
-)
-image = cv2.imread(ipath)
-transformed = transform(image=image, bboxes=boxes)
-
-print(transformed)
-
-
+"""
+Blur - blur_limit (4-100)
+CLAHE - clip_limit (1-100)
+ChannelDropout - Randomly Drop Channels in the input Image. - channel_drop_range (1,2) , fill_value(0,255)
+ChannelShuffle - Randomly rearrange channels of the input RGB image - no  params
+ColorJitter - Randomly changes the brightness, contrast, and saturation of an image. brightness [0-1], contrast[0-1],saturation[0-1], hue[0-1]
+Downscale - Decreases image quality by downscaling and upscaling back. - "scale_min" - [0-0.5], "scale_max" - [0-0.5]
+Equalize - Equalize the image histogram. mode='cv'/'pil', by_channels=True
+FDA
+FancyPCA
+FromFloat
+GaussNoise
+GaussianBlur
+GlassBlur
+HistogramMatching
+HueSaturationValue
+IAAAdditiveGaussianNoise
+IAAEmboss
+IAASharpen
+IAASuperpixels
+ISONoise
+ImageCompression
+InvertImg
+MedianBlur
+MotionBlur
+MultiplicativeNoise
+Normalize
+Posterize
+RGBShift
+RandomBrightnessContrast
+RandomFog
+RandomGamma
+RandomRain
+RandomShadow
+RandomSnow
+RandomSunFlare
+Sharpen
+Solarize
+ToFloat
+ToGray
+ToSepia
+"""

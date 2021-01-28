@@ -404,8 +404,7 @@ def transform_image(img, bboxes, transform):
     assert len(transformation_type), "Transformation type not available"
 
     transformation_parameters = transform.get("parameters", {})
-    assert len(
-        transformation_parameters), "Transformation parameters not available"
+    assert len(transformation_parameters), "Transformation parameters not available"
 
     transformation_variation = int(transform.get("variation", 0))
     assert transformation_variation, "Number of transformation variations not available"

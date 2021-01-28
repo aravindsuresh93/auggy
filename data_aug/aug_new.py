@@ -82,7 +82,7 @@ boxes, labels = open_txt(classes, tpath, width, height)
 
 
 transform = A.Compose(
-    [ A.ShiftScaleRotate(p=0.5)],
+    [ A.Equalize()],
     bbox_params=A.BboxParams(format='yolo', label_fields=['category_ids']),
 )
 
@@ -94,16 +94,14 @@ transformed = transform(image=image, bboxes=boxes, category_ids=labels)
 new_boxes = []
 
 
-print(height, width)
+
 for data in transformed["bboxes"]:
-    print(data)
+
 
     bbox_width = float(data[2]) * width
     bbox_height = float(data[3]) * height
     center_x = float(data[0]) * width
     center_y = float(data[1]) * height
-
-    print("centre",center_x, center_y)
 
     xmin = int(center_x - (bbox_width / 2))
     ymin = int(center_y - (bbox_height / 2))
@@ -112,7 +110,7 @@ for data in transformed["bboxes"]:
 
     new_boxes.append([xmin, ymin, xmax, ymax])
     
-print(new_boxes)
+
 visualize(
     transformed['image'],
     new_boxes,
@@ -120,3 +118,8 @@ visualize(
     classes,
 )
 
+print(labels)
+print(new_boxes,
+    transformed['category_ids'],
+    classes,
+)
