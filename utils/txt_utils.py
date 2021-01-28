@@ -5,7 +5,6 @@ import os
 import cv2
 
 
-
 """Bounding Box Class"""
 class BoundingBoxTXT:
     def __init__(self, label, xmin, ymin, xmax, ymax):
@@ -200,6 +199,7 @@ class EditTextFile:
         self.TE = TxtExtract()
         self.convert_to_idx()
         self.PF = PathFinder()
+        
     def get_bounding_boxes(self,txt_path):
         _, self.text_file  = self.TE.extract(txt_path)
         original_boxes, names = [], []

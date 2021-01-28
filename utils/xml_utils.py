@@ -112,8 +112,6 @@ def get_corr_image(fpath):
 
 
 """Bounding Box Class"""
-
-
 class BoundingBoxXML:
     def __init__(self, master):
         for child in master:
@@ -129,8 +127,6 @@ class BoundingBoxXML:
 
 
 """Converts XML into unified"""
-
-
 class ParseXML:
     def __init__(self, file):
         self.root = ET.parse(file).getroot()

@@ -1,4 +1,3 @@
-import xml.etree.ElementTree as ET
 import pickle as pkl
 import numpy as np
 import random
@@ -7,7 +6,6 @@ import os
 
 from data_aug.bbox_util import *
 from data_aug.data_aug import *
-
 
 from utils.xml_utils import XMLEditor
 from utils.txt_utils import EditTextFile
@@ -36,7 +34,7 @@ def augment(ipath, annotation_path, outname, image_name, image_format, transform
             names.append(b['name'])
 
 
-        """Save Image"""
+        """Transform Image"""
         transformed_img, newbboxes = transform_image(img, original_boxes, transform)
         new_height, new_width = transformed_img.shape[:2]
 
@@ -54,7 +52,7 @@ def augment(ipath, annotation_path, outname, image_name, image_format, transform
     else:
         ET = EditTextFile()
         original_boxes, names = ET.get_bounding_boxes(annotation_path)
-        """Save Image"""
+        """Transform Image"""
         transformed_img, newbboxes = transform_image(img, original_boxes, transform)
         new_height, new_width = transformed_img.shape[:2]
 
