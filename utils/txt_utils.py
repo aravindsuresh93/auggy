@@ -126,10 +126,10 @@ class DeleteClass:
             labels = f.readlines()
 
         current_classes = {}
-
         modified_labels = []
         modified_classes = {}
         deleted_labels = []
+        
         for e, label in enumerate(labels):
             label = label.replace('\n', '')
             current_classes[str(e)] = label
@@ -144,7 +144,7 @@ class DeleteClass:
         """refresh"""
 
         for file in os.listdir(self.PF.annotationFolder):
-            if not '.' + self.PF.annotationFormat in file or file == 'classes.txt' or '.DS' in file:
+            if not self.PF.annotationFormat in file or file == 'classes.txt' or '.DS' in file:
                 continue
 
             fpath = os.path.join(self.PF.annotationFolder, file)
@@ -164,14 +164,11 @@ class DeleteClass:
                 else:
                     print(label)
 
-            outFolder = self.PF.outputFolder if len(self.PF.outputFolder) else self.PF.imageFolder
-            out_path = os.path.join(outFolder, file)
-
-            with open(out_path, 'w') as f:
+            with open(fpath, 'w') as f:
                 pass
 
             for text in texts:
-                with open(out_path, 'a') as f:
+                with open(fpath, 'a') as f:
                     f.write(text + '\n')
 
         with open(self.PF.classesPath, 'w') as f:

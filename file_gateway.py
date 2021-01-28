@@ -76,7 +76,7 @@ class download_files(tornado.web.RequestHandler):
         zipf.write(self.PF.classesPath)
         zipf.close()
 
-    def grab_file(self)
+    def grab_file(self):
         self.get_zip
         with open(self.file_name, 'r') as f:
             while True:

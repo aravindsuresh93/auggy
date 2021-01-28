@@ -20,7 +20,6 @@ class StatMaster:
         self.PF = PathFinder()
 
     def getMetaDF(self, baseDir, annotation_format='xml'):
-        annotation_format = '.' + annotation_format
         data = []
         self.annotation_info = {}
         self.annotation_files = [file for file in os.listdir(baseDir) if annotation_format in file]
@@ -121,6 +120,7 @@ class StatMaster:
 
 
     def rename_label(self, content):
+        self.loader()
         notfound = []
         for c in content:
             oldname = c.get('oldName', '')
@@ -143,6 +143,7 @@ class StatMaster:
         return True, ""
 
     def delete_label(self, content):
+        self.loader()
         notfound = []
         for c in content:
             oldname = c.get('oldName', '')
@@ -159,8 +160,6 @@ class StatMaster:
                 DeleteXMLBatch(att_paths_, oldname)
 
         if self.PF.annotationFormat == 'txt':
-
-            # return False, "Implementation in progress"
             DC = DeleteClass()
             tbdel = []
             for c in content:
