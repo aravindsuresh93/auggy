@@ -1,12 +1,12 @@
 from utils.path_manager import PathFinder
-import numpy as np
+from utils.common import convert_to_auggy, get_image_info
 import json
 import os
-import cv2
+
 
 
 """Bounding Box Class"""
-class BoundingBoxTXT:
+class BoundingBox:
     def __init__(self, label, xmin, ymin, xmax, ymax):
         self.label = label
         self.xmin = xmin
@@ -18,18 +18,19 @@ class BoundingBoxTXT:
 
 """Converts TXT into unified class object"""
 class TextFile:
-    def __init__(self, classes, lines, ipath, fpath, width, height, depth):
+    def __init__(self, ipath, fpath, width, height, depth):
+        with open(fpath, 'r') as f: lines = f.readlines()
         self.image_name = os.path.basename(ipath)
         self.image_path = ipath
         self.path = fpath
         self.width = width
         self.height = height
         self.depth = depth
-        self.bbox = []
+        self.bounding_box = []
         for line in lines:
             line = line.strip()
             data = line.split()
-            label = classes[int(data[0])]
+            label = int(data[0])
             bbox_width = float(data[3]) * width
             bbox_height = float(data[4]) * height
             center_x = float(data[1]) * width
@@ -38,16 +39,15 @@ class TextFile:
             ymin = int(center_y - (bbox_height / 2))
             xmax = int(center_x + (bbox_width / 2))
             ymax = int(center_y + (bbox_height / 2))
-            self.bbox.append(BoundingBoxTXT(label, xmin, ymin, xmax, ymax))
+            self.bounding_box.append(BoundingBox(label, xmin, ymin, xmax, ymax))
 
 
-class TxtExtract:
-    def __init__(self):
-        self.PF = PathFinder()
-        self.PF.load()
-
-    def load_classes(self):
-        with open(self.PF.classesPath, 'r') as f:
+"""
+Decode classes.txt
+"""
+class YoloLabels:
+    def __init__(self, cpath):
+        with open(cpath, 'r') as f:
             labels = f.readlines()
 
         self.classes = {}
@@ -55,41 +55,16 @@ class TxtExtract:
             label = label.replace('\n', '')
             self.classes[e] = label
 
-    def get_corr_image(self, fpath):
-        name = os.path.basename(fpath)
-        name = name.split('.txt')[0]
-        images = os.listdir(self.PF.imageFolder)
-        found = 0
-        for fformat in self.PF.imgFormat:
-            image_name = f'{name}.{fformat}'
-            if image_name in images:
-                found = 1
-                break
-        if found:
-            ipath = os.path.join(self.PF.imageFolder, image_name)
-            img = cv2.imread(ipath)
-            height, width, depth = img.shape
-            return ipath, height, width, depth
-        return '', 0, 0, 0
+class OpenTextFile:
+    def __init__(self):
+        self.PF = PathFinder()
 
-    def extract(self, fpath):
-        self.load_classes()
-        with open(fpath, 'r') as f:
-            lines = f.readlines()
+    def open(self, fpath):
+        ipath, height, width, depth = self.get_image_info(fpath, self.PF.imageFolder, self.PF.imgFormat)
+        txt = TextFile(ipath, fpath, width, height, depth)
+        return convert_to_auggy(txt)
 
-        ipath, height, width, depth = self.get_corr_image(fpath)
 
-        masterDict = {}
-        TFile = TextFile(self.classes, lines, ipath, fpath, width, height, depth)
-        masterDict.update({'path': TFile.path, 'image_name': TFile.image_name,
-                            'image_path': TFile.image_path, 'height': TFile.height,
-                            'width': TFile.width, 'depth': TFile.depth})
-
-        for att in TFile.bbox:
-            attval = masterDict.get(att.label, 0)
-            attval += 1
-            masterDict.update({att.label: attval})
-        return masterDict, TFile
 
 
 class EditClasses:
