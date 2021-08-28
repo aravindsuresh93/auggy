@@ -1,5 +1,6 @@
 class OpenAnnotations:
-    def get(self, format):
+    @staticmethod
+    def get(format):
         if format == ".xml":
             from utils.open_annotations.open_pascal import OpenXMLFile
             return OpenXMLFile()
@@ -10,12 +11,13 @@ class OpenAnnotations:
             raise NotImplementedError("Annotation Format not supported")
 
 class OpenLabels:
-    def get(self, format, file = ""):
+    @staticmethod
+    def get(format, fpath = ""):
         if format == ".xml":
             return {}
         elif format == ".txt":
             from utils.common import YoloLabels
-            return YoloLabels(self.PF.classesPath).classes
+            return YoloLabels(fpath).classes
 
 
 

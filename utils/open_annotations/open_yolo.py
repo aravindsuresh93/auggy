@@ -43,13 +43,9 @@ class TextFile:
 
 
 
-
 class OpenTextFile:
-    def __init__(self):
-        self.PF = PathFinder()
-
-    def open(self, fpath, classes = {}):
-        ipath, height, width, depth = self.get_image_info(fpath, self.PF.imageFolder, self.PF.imgFormat)
+    def open(self, fpath, image_folder, name, classes = {}):
+        ipath, height, width, depth = get_image_info(image_folder, name)
         txt = TextFile(ipath, fpath, width, height, depth)
         return convert_to_auggy(txt)
 

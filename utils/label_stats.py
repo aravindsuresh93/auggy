@@ -11,11 +11,7 @@ metadata = ['path', 'image_name', 'image_path', 'width', 'height', 'depth']
 
 
 
-            
-
-
-
-
+        
 class StatMaster:
     def __init__(self):
         self.annotation_files = []

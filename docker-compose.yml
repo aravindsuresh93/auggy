@@ -3,6 +3,9 @@ services:
   auggy:
     image:  auggy
     container_name: auggy
+    stdin_open: true
+    volumes:
+      - /Users/aravind/Desktop/Projects/auggy:/app/auggy
     ports:
       - 8099:8099
       - 8088:8088
