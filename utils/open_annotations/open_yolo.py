@@ -42,24 +42,13 @@ class TextFile:
             self.bounding_box.append(BoundingBox(label, xmin, ymin, xmax, ymax))
 
 
-"""
-Decode classes.txt
-"""
-class YoloLabels:
-    def __init__(self, cpath):
-        with open(cpath, 'r') as f:
-            labels = f.readlines()
 
-        self.classes = {}
-        for e, label in enumerate(labels):
-            label = label.replace('\n', '')
-            self.classes[e] = label
 
 class OpenTextFile:
     def __init__(self):
         self.PF = PathFinder()
 
-    def open(self, fpath):
+    def open(self, fpath, classes = {}):
         ipath, height, width, depth = self.get_image_info(fpath, self.PF.imageFolder, self.PF.imgFormat)
         txt = TextFile(ipath, fpath, width, height, depth)
         return convert_to_auggy(txt)

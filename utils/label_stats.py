@@ -3,32 +3,15 @@ import os
 
 from utils.path_manager import PathFinder
 from utils.xml_utils import editXMLBatch, flattenXML, DeleteXMLBatch
-from utils.open_annotations.open_factory import OpenAnnotations
+
 
 """XML UTILS"""
 
 metadata = ['path', 'image_name', 'image_path', 'width', 'height', 'depth']
 
 
-#TODO : Classes mapping for pascal and xml -> Input Classes, Output Classes
 
-class LoadAnnotations():
-    def __init__(self, ):
-        self.annotation_info = {}
-
-    def load(self, base_directory, annotation_format):
-        data = []
-        self.annotation_info = {}
-        annotation_files = [file for file in os.listdir(base_directory) if annotation_format in file]
-        
-        AE = OpenAnnotations.get(annotation_format)()
-        for file in annotation_files:
-            if file == 'classes.txt': continue
-            annotation = AE.open(os.path.join(base_directory, file))
-            self.annotation_info[file] = annotation
-
-        if annotation_format == 'txt':
-            classes = YoloLabels(self.PF.classesPath).classes
+            
 
 
 

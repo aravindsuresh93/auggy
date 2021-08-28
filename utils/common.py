@@ -16,3 +16,13 @@ def get_image_info(fpath, image_folder, image_formats):
             return ipath, height, width, depth
     return '', 0, 0, 0
 
+
+class YoloLabels:
+    def __init__(self, cpath):
+        with open(cpath, 'r') as f:
+            labels = f.readlines()
+
+        self.classes = {}
+        for e, label in enumerate(labels):
+            label = label.replace('\n', '')
+            self.classes[e] = label

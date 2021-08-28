@@ -9,10 +9,13 @@ import os
 
 """Bounding Box Class"""
 class BoundingBoxXML:
-    def __init__(self, master):
+    def __init__(self, master, classes):
         for child in master:
             if child.tag == 'name':
-                self.label = child.text
+                if child.text not in classes.values():
+                    classes[len(classes)] = child.text
+                inverted_classes = {v:k for k,v in classes.items()}
+                self.label = inverted_classes[child.text]
             if child.tag == 'bndbox':
                 for grandchild in child:
                     if grandchild.tag in ['xmin', 'ymin', 'xmax', 'ymax']:
@@ -24,7 +27,7 @@ class BoundingBoxXML:
 
 """Converts XML into unified"""
 class ParseXML:
-    def __init__(self, file):
+    def __init__(self, file, classes):
         self.root = ET.parse(file).getroot()
         self.path = file
         self.image_path, self.height, self.width, self.depth = get_image_info(file)
@@ -38,12 +41,12 @@ class ParseXML:
                     if child.tag in ['height', 'width', 'depth']:
                         setattr(self, child.tag, int(child.text.strip()))
             if master.tag == 'object':
-                self.bbox.append(BoundingBoxXML(master))
+                self.bbox.append(BoundingBoxXML(master, classes))
 
 
 class OpenXMLFile:
-    def open(self, fpath):
-        xml = ParseXML(fpath)
+    def open(self, fpath, classes):
+        xml = ParseXML(fpath, classes)
         return convert_to_auggy(xml)
      
 
