@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<annotation>
+	<folder>raw</folder>
+	<filename>k7.jpg</filename>
+	<path>/Users/aravindsuresh/Desktop/MyGate/Projects/Card_Detection/work/scraped/new_set_dl/raw/k7.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>918</width>
+		<height>890</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>dl</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>6</xmin>
+			<ymin>194</ymin>
+			<xmax>794</xmax>
+			<ymax>706</ymax>
+		</bndbox>
+	</object>
+</annotation>

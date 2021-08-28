@@ -1,0 +1,14 @@
+<annotation>
+	<folder>raw</folder>
+	<filename>k3.jpeg</filename>
+	<path>/Users/aravindsuresh/Desktop/MyGate/Projects/Card_Detection/work/scraped/new_set_dl/raw/k3.jpeg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>400</width>
+		<height>322</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+</annotation>

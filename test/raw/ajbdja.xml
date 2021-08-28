@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<annotation>
+	<folder>raw</folder>
+	<filename>ajbdja.jpg</filename>
+	<path>/Users/aravindsuresh/Desktop/MyGate/Projects/Card_Detection/work/scraped/new_set_dl/raw/ajbdja.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>900</width>
+		<height>568</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>dl</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>20</xmin>
+			<ymin>11</ymin>
+			<xmax>886</xmax>
+			<ymax>530</ymax>
+		</bndbox>
+	</object>
+</annotation>
