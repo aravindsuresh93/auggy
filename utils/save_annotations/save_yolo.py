@@ -32,7 +32,7 @@ class SaveTXT:
     @staticmethod
     def save_classes(classes, save_folder):
         classes_txt = ""
-        classes_array = classes[0].values
+        classes_array = classes['label'].values
         for c in classes_array:
             classes_txt = classes_txt + str(c) + "\n"
         with open(os.path.join(save_folder, "classes.txt"), 'w') as f:

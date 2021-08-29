@@ -20,8 +20,7 @@ class BoundingBoxXML:
             if child.tag == 'bndbox':
                 for grandchild in child:
                     if grandchild.tag in ['xmin', 'ymin', 'xmax', 'ymax']:
-                        setattr(self, grandchild.tag, int(
-                            grandchild.text.strip()))
+                        setattr(self, grandchild.tag, int(grandchild.text.strip()))
         self.h = self.ymax - self.ymin
         self.w = self.xmax - self.xmin
 

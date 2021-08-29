@@ -27,7 +27,7 @@ class LoadAnnotations:
 
     @staticmethod
     def convert_classes_to_frame(classes):
-        return pd.DataFrame.from_dict(classes, orient = 'index')
+        return pd.DataFrame.from_dict(classes, orient = 'index', columns=['label'])
 
     @staticmethod
     def load(annotation_folder, annotation_format, image_folder, classes_path=""):
