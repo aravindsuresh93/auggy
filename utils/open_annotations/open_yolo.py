@@ -19,27 +19,32 @@ class BoundingBox:
 """Converts TXT into unified class object"""
 class TextFile:
     def __init__(self, ipath, fpath, width, height, depth):
-        with open(fpath, 'r') as f: lines = f.readlines()
-        self.image_name = os.path.basename(ipath)
-        self.image_path = ipath
-        self.path = fpath
-        self.width = width
-        self.height = height
-        self.depth = depth
-        self.bounding_box = []
-        for line in lines:
-            line = line.strip()
-            data = line.split()
-            label = int(data[0])
-            bbox_width = float(data[3]) * width
-            bbox_height = float(data[4]) * height
-            center_x = float(data[1]) * width
-            center_y = float(data[2]) * height
-            xmin = int(center_x - (bbox_width / 2))
-            ymin = int(center_y - (bbox_height / 2))
-            xmax = int(center_x + (bbox_width / 2))
-            ymax = int(center_y + (bbox_height / 2))
-            self.bounding_box.append(BoundingBox(label, xmin, ymin, xmax, ymax))
+        try:
+            with open(fpath, 'r') as f: lines = f.readlines()
+            self.image_name = os.path.basename(ipath)
+            self.image_path = ipath
+            self.annotation_path = fpath
+            self.width = width
+            self.height = height
+            self.depth = depth
+            self.bounding_box = []
+            for line in lines:
+                line = line.strip()
+                data = line.split()
+                label = int(data[0])
+                bbox_width = float(data[3]) * width
+                bbox_height = float(data[4]) * height
+                center_x = float(data[1]) * width
+                center_y = float(data[2]) * height
+                xmin = int(center_x - (bbox_width / 2))
+                ymin = int(center_y - (bbox_height / 2))
+                xmax = int(center_x + (bbox_width / 2))
+                ymax = int(center_y + (bbox_height / 2))
+                self.bounding_box.append(BoundingBox(label, xmin, ymin, xmax, ymax))
+        except Exception as e:
+            self.error = f'{fpath} {e}' 
+            self.annotation_path = fpath
+            print(self.error)
 
 
 

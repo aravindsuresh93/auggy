@@ -13,6 +13,7 @@ class LoadAnnotations:
         df = pd.DataFrame()   
         for f, info in annotation_info.items():
             if len(info.get("error", "")):
+                print(">>>> ",info)
                 sdf = pd.DataFrame(info, [0])
                 df = df.append(sdf) if len(df) else  sdf
             main_info = info.copy()
@@ -22,12 +23,15 @@ class LoadAnnotations:
                 sdf = pd.DataFrame(combined, [0])
                 df = df.append(sdf) if len(df) else  sdf
         df['error'] = 0 if "error" not in df.columns else df['error'].fillna(0)
+        df['deteled'], df['modified'], df['soft_error'] = False, False, False
         df.reset_index(drop=True, inplace=True)
         return df
 
     @staticmethod
     def convert_classes_to_frame(classes):
-        return pd.DataFrame.from_dict(classes, orient = 'index', columns=['label'])
+        classes = pd.DataFrame.from_dict(classes, orient = 'index', columns=['label'])
+        classes['deleted'] = False
+        return classes
 
     @staticmethod
     def load(annotation_folder, annotation_format, image_folder, classes_path=""):

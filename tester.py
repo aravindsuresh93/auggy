@@ -8,6 +8,9 @@ print(df)
 
 stats = Stats(df, classes)
 print(stats.get_global_stats())
+print(stats.get_error_info())
+
+
 
 # save(df, classes, "/app/auggy/test/out")
 

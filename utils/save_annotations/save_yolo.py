@@ -18,13 +18,13 @@ class SaveTXT:
         h=h*dh
         return f'{classid} {x} {y} {w} {h}'
 
-    @staticmethod
+    @staticmethod       
     def save(info, classes, save_folder):
         yolo_text = ""
         for b in info:
             yololine = convert_to_yolo((b['width'], b['height']), (b['xmin'], b['xmax'], b['ymin'], b['ymax']), b['label'])
             yolo_text = yolo_text + yololine + "\n"
-            txtfilename = os.path.basename(b['path'])
+            txtfilename = os.path.basename(b['annotation_path'])
 
         with open(os.path.join(save_folder, txtfilename), 'w') as f:
             f.write(yolo_text)
@@ -32,7 +32,7 @@ class SaveTXT:
     @staticmethod
     def save_classes(classes, save_folder):
         classes_txt = ""
-        classes_array = classes['label'].values
+        classes_array = classes[classes['deleted'] != False]['label'].values
         for c in classes_array:
             classes_txt = classes_txt + str(c) + "\n"
         with open(os.path.join(save_folder, "classes.txt"), 'w') as f:

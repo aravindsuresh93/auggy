@@ -1,0 +1,20 @@
+Login 
+parked for now
+
+Project management:
+Design multi-user project management ( a better design)
+
+Upload images:
+Reverification of process and unified path management
+
+Stats:
+Think about more Stats
+
+Edit Annotations : 
+Rename 
+Delete
+Auto-edit-bouding-box
+
+Augmentation : 
+Finish core for Augmentation
+design full flow

@@ -1,7 +1,6 @@
 import os
 import cv2
 
-
 def skip_files(file_name):
     if file_name == 'classes.txt':
         return True
@@ -12,7 +11,7 @@ def skip_files(file_name):
 def convert_to_auggy(cls_obj):
     auggy_dict = cls_obj.__dict__
     if len(auggy_dict.get("error", "")):
-        return {"error" : auggy_dict["error"]}
+        return auggy_dict
     auggy_dict['bounding_box'] = [b.__dict__ for b in auggy_dict['bounding_box']]
     return auggy_dict
 

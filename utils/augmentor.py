@@ -1,3 +1,4 @@
+from typing import get_args
 import albumentations as A
 from matplotlib import pyplot as plt
 import random
@@ -6,17 +7,17 @@ import os
 
 
 class Augment:
-    def __init__():
+    def __init__(self):
         self.bbox_params = A.BboxParams(format='pascal_voc')
 
     """
     Pixel Level
     """
 
-    def blur(self, blur_limit):
+    def Blur(self, blur_limit):
         self.transform = A.Compose([A.Blur(blur_limit=(3, blur_limit), p=1)], bbox_params=self.bbox_params)
 
-    def clahe(self, clip_limit):
+    def Clahe(self, clip_limit):
         self.transform = A.Compose([A.CLAHE(clip_limit=clip_limit, tile_grid_size=(8, 8), p=1)], bbox_params=self.bbox_params)
 
     def ChannelDropout(self, channel_drop_range, fill_value):
@@ -26,19 +27,31 @@ class Augment:
         self.transform = A.Compose([A.ChannelShuffle(p=1)], bbox_params=self.bbox_params)
 
     def ChannelShuffle(self, brightness, contrast, saturation, hue):
-        self.transform = A.Compose([A.ChannelShuffle(brightness=brightness, contrast=contrast,
-                                                 saturation=saturation, hue=hue, p=1)], bbox_params=self.bbox_params)
+        self.transform = A.Compose([A.ChannelShuffle(brightness=brightness, contrast=contrast,saturation=saturation, hue=hue, p=1)], bbox_params=self.bbox_params)
     
     def Downscale(self, scale_min, scale_max):
-        self.transform = A.Compose([A.Downscale(scale_min=scale_min, scale_max=scale_max p=1)], bbox_params=self.bbox_params)
+        self.transform = A.Compose([A.Downscale(scale_min=scale_min, scale_max=scale_max,p=1)], bbox_params=self.bbox_params)
 
     def Equalize(self, mode, by_channels):
-        self.transform = A.Compose([A.Downscale(mode=mode, by_channels=by_channels p=1)], bbox_params=self.bbox_params)
+        self.transform = A.Compose([A.Equalize(mode=mode, by_channels=by_channels, p=1)], bbox_params=self.bbox_params)
+    
+    def FancyPCA(self, alpha):
+        self.transform = A.Compose([A.FancyPCA(alpha = alpha)], bbox_params=self.bbox_params)   
+
+    def GaussNoise(self, var_limit, mean, per_channel):
+        self.transform = A.Compose([A.GaussNoise(var_limit = var_limit, mean = mean, per_channel=per_channel, p=1)], bbox_params=self.bbox_params)
+
+    def GlassBlur(self, sigma, max_delta, iterations, mode, p=1):
+        self.transform = A.Compose([A.GlassBlur(sigma = sigma, max_delta = max_delta, iterations=iterations, mode = mode, p=1)], bbox_params=self.bbox_params)        
+
+    def GaussianBlur(self, blur_limit, sigma_limit):
+        self.transform = A.Compose([A.GaussianBlur(blur_limit = blur_limit, sigma_limit = sigma_limit,p=1)], bbox_params=self.bbox_params)        
+         
 
     """
     Workflow
     """
-    def response(transformed):
+    def response(self, transformed):
         boxes = []
         for e, box in enumerate(transformed["bboxes"]):
             box += transformed["category_ids"][e]
@@ -46,52 +59,37 @@ class Augment:
         image = transformed['image']
         return image, boxes
 
-    def request(transform_data):
+    def request(self, transform_data):
         self.transformation_type = transform_data.get("type", "")
-        assert len(transformation_type), "Transformation type not available"
+        assert len(self.transformation_type), "Transformation type not available"
 
         self.transformation_parameters = transform_data.get("parameters", {})
-        assert len(transformation_parameters), "Transformation parameters not available"
+        assert len(self.transformation_parameters), "Transformation parameters not available"
 
-    def get_arg(argname, default_val):
+    def get_arg(self, argname, default_val):
         return self.transformation_parameters.get(argname, default_val)
+
 
     def process(self, image, boxes, transform_data):
         self.request(transform_data)
 
-        """Blur"""
-        if self.transformation_type == "blur":
-            self.blur(blur_limit=self.get_arg("blur_limit", 3))
+        switcher = {
+            "Blur" : self.Blur(blur_limit=self.get_arg("blur_limit", 3)),
+            "Clahe" : self.Clahe(self.get_arg("clip_limit", 4)),
+            "ChannelDropout" : self.ChannelDropout(self.get_arg("channel_drop_range", (1, 1)), self.get_arg("fill_value", 0)),
+            "ChannelShuffle" : self.ChannelShuffle(),
+            "ColorJitter" : self.ColorJitter(self.get_arg("brightness", 0.2), self.get_arg("contrast", 0.2),self.get_arg("saturation", 0.2),self.get_arg("hue", 0.2)),
+            "Downscale" : self.Downscale(self.get_arg("scale_min", 0.25), self.get_arg("scale_max", 0.25)),
+            "Equalize" : self.Equalize(self.get_arg("mode", "cv"), self.get_arg("by_channels", True)),
+            "FancyPCA" : self.FancyPCA(self.get_arg("alpha", 0.1)),
+            "GaussNoise" : self.GaussNoise(self.get_arg("var_limit", [10,50]), self.get_arg("mean", 0), self.get_arg("per_channel", True)),
+            "GaussianBlur" : self.GaussianBlur(self.get_arg("blur_limit", (3, 7)), self.get_arg("sigma_limit",0)),
+            "GlassBlur" : self.GaussianBlur(self.get_arg("sigma", 0.7), self.get_arg("max_delta", 4), self.get_arg("iterations", 2), self.get_arg("mode", "fast"))
+        }
 
-        """CLAHE"""
-        if self.transformation_type == "clahe":
-            self.clahe(self.get_arg("clip_limit", 4))
-
-        """ChannelDropout"""
-        if self.transformation_type == "ChannelDropout":fill_value
-            self.ChannelDropout(self.get_arg("channel_drop_range", (1, 1)), self.get_arg("fill_value", 0))
-
-        """ChannelShuffle"""
-        if self.transformation_type == "ChannelShuffle":
-            self.ChannelShuffle()
-
-        """ColorJitter"""
-        if self.transformation_type == "ColorJitter":
-            self.ColorJitter(self.get_arg("brightness", 0.2), 
-            self.get_arg("contrast", 0.2),
-            self.get_arg("saturation", 0.2),
-            self.get_arg("hue", 0.2))
-
-        """Downscale"""
-        if self.transformation_type == "Downscale":
-            self.Downscale(self.get_arg("scale_min", 0.25), self.get_arg("scale_max", 0.25))
-
-        """Equalize"""
-        if self.transformation_type == "Equalize":
-            self.Equalize(self.get_arg("mode", "cv"), self.get_arg("by_channels", True))
-
-
-        transformed = self.transform(image=image, bboxes=boxes)
+        processed = switcher.get(self.transformation_type, 0)
+        if processed:
+            transformed = self.transform(image=image, bboxes=boxes)
         return self.response(transformed)
 
 
@@ -103,12 +101,13 @@ ChannelShuffle - Randomly rearrange channels of the input RGB image - no  params
 ColorJitter - Randomly changes the brightness, contrast, and saturation of an image. brightness [0-1], contrast[0-1],saturation[0-1], hue[0-1]
 Downscale - Decreases image quality by downscaling and upscaling back. - "scale_min" - [0-0.5], "scale_max" - [0-0.5]
 Equalize - Equalize the image histogram. mode='cv'/'pil', by_channels=True
-FDA
-FancyPCA
-FromFloat
+** FDA - Not available
+FancyPCA -  
+** FromFloat
 GaussNoise
 GaussianBlur
 GlassBlur
+
 HistogramMatching
 HueSaturationValue
 IAAAdditiveGaussianNoise

@@ -16,7 +16,7 @@ class SaveXML:
         ET.SubElement(size, "width").text = str(metainfo['width'])
         ET.SubElement(size, "depth").text = str(metainfo['depth'])
 
-        xml_name = os.path.basename(metainfo['path'])
+        xml_name = os.path.basename(metainfo['annotation_path'])
 
         for b in info:
             object_element = ET.SubElement(annotation, "object")

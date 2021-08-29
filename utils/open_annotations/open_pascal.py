@@ -1,9 +1,6 @@
 import xml.etree.ElementTree as ET
 import xml
-from utils.path_manager import PathFinder
 from utils.common import convert_to_auggy, get_image_info
-# import numpy as np
-# import pandas as pd
 import os
 
 
@@ -30,9 +27,8 @@ class ParseXML:
     def __init__(self, fpath, image_folder, name, classes):
         try:
             root = ET.parse(fpath).getroot()
-            self.path = fpath
+            self.annotation_path = fpath
             self.image_path, self.height, self.width, self.depth = get_image_info(image_folder, name)
-
             self.bounding_box = []
             for master in root:
                 if master.tag == 'filename':
@@ -45,9 +41,11 @@ class ParseXML:
                     self.bounding_box.append(BoundingBoxXML(master, classes))
         except xml.etree.ElementTree.ParseError:
             self.error = f'{fpath} seems to be empty/ corrupted'
+            self.annotation_path = fpath
             print(self.error)
         except Exception as e:
             self.error = f'{fpath} {e}'
+            self.annotation_path = fpath
             print(self.error)
 
 
