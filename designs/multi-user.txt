@@ -1,0 +1,34 @@
+credentials:
+    
+
+
+Users
+
+Admin : ""
+User :  
+        Projects:
+            uuid1:
+                access = "*"
+        
+            uuid2:
+                access = "*"   
+
+user2 : 
+        projects:
+            uuid2:
+            access: "rename:urn"
+
+
+
+projects:
+    uuid:
+        name : "p1"
+    uuid2:
+        name : "p2"    
+
+
+The above will be saved in a redis-persist-cache
+
+JWT + project-uuid will refer to a user's access to a project
+
+
