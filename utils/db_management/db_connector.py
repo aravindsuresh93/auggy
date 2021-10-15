@@ -39,22 +39,23 @@ class DB:
         return df
 
     def delete_table(self):
-        self.execute(Queries.DROP_TABLE)
+        self.execute(Queries.DROP_TABLES)
 
     def initialise_all_tables(self):
         self.execute(Queries.CREATE_USER_TABLE)
         self.execute(Queries.CREATE_PROJECT_TABLE)
+        self.execute(Queries.CREATE_ACCESS_TABLE)
 
     def close(self):
         self.conn.close()
 
     def create_user(self, username, password):
         try:
-            self.insert(Queries.ADD_USER, (username, password, json.dumps({})))
-            return 0, f"Registered {username}"
+            self.insert(Queries.CREATE_USER, (username, password, json.dumps({})))
+            return 0, f"Registered new user {username}"
         except UniqueViolation:
             self.conn.rollback()
-            return 1, "User already exists"
+            return 1, "User already exists, please use a different username/ login"
         except Exception as e:
             self.conn.rollback()
             return 1, e
@@ -66,12 +67,34 @@ class DB:
             return df.to_dict(orient='index')[0]
         return {}
 
+    def create_project(self, data):
+        try:
+            self.insert(Queries.CREATE_PROJECT, data)
+            return 0, f"Created Project {data[0]}"
+        except UniqueViolation:
+            self.conn.rollback()
+            return 1, "Project already exists, please use a new name"
+        except Exception as e:
+            self.conn.rollback()
+            return 1, e
+
+    def insert_access(self, data):
+        try:
+            self.insert(Queries.INSERT_ACCESS, data)
+            return 0, f"Created Role"
+        except UniqueViolation:
+            self.conn.rollback()
+            return 1, "Role already exists"
+        except Exception as e:
+            self.conn.rollback()
+            return 1, e
 
 
 
 
 
-db = DB()
+
+
 # db.add_user("aravind", "pass")
 # db.delete_table()
 # df = db.query("select * from users")

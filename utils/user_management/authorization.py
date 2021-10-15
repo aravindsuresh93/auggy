@@ -22,7 +22,7 @@ class AuthHandler():
             'iat': datetime.utcnow(),
             'sub': user_id
         }
-        return jwt.encode(payload,self.secret,algorithm='HS256')
+        return jwt.encode(payload, self.secret, algorithm='HS256')
 
     def decode_token(self, token):
         try:
@@ -34,5 +34,4 @@ class AuthHandler():
             raise HTTPException(status_code=401, detail='Invalid token')
 
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
-        print(auth)
         return self.decode_token(auth.credentials)

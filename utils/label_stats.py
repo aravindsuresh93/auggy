@@ -8,9 +8,6 @@ from utils.xml_utils import editXMLBatch, flattenXML, DeleteXMLBatch
 """XML UTILS"""
 
 metadata = ['path', 'image_name', 'image_path', 'width', 'height', 'depth']
-
-
-
         
 class StatMaster:
     def __init__(self):

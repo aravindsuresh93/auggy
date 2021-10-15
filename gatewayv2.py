@@ -26,11 +26,20 @@ def login(auth_details: AuthDetails):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@app.post('/test')
-def test(req: Test, username=Depends(auth_handler.auth_wrapper)):
-    print(req.p1, req.p2, username)
-    return {'name': req.p1, 'u': username}
+@app.post('/project/create')
+def projectcreate(req: Project, username=Depends(auth_handler.auth_wrapper)):
+    status, message = project_manager.create_project(req, username)
+    return {"es": status, "message": message}
 
-@app.post('/project')
-def project(req: Project, username=Depends(auth_handler.auth_wrapper)):
-    project_manager.create(req, username)
+
+@app.get('/project/list')
+def projectlist(username=Depends(auth_handler.auth_wrapper)):
+    status, message, data = project_manager.list_projects(username)
+    return {"es": status, "message": message, 'data': data}
+
+
+@app.get('/project/{projectname}/getstats')
+def projectlist(projectname, username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+
+
