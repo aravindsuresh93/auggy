@@ -9,11 +9,13 @@ services:
   #    ports:
   #      - 8099:8099
   #      - 8088:8088
-  auggy-redis:
-    image: redis
-    container_name: auggy-redis
-    command: "redis-server --appendonly yes"
+  auggy-postgres:
+    container_name: auggy-postgres
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=password
     volumes:
-      - ./rdata:/data
+      - ./postgres-data:/var/lib/postgresql
     ports:
-      - 6379:6379
+      - 5432:5432
