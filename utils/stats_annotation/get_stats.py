@@ -17,9 +17,8 @@ class Stats:
     def get_label_distribution(self):
         vc = self.df['label'].value_counts()
         vc = self.classes.merge(vc.to_frame(),  how='left', left_index = True, right_index=True)
-        print(vc)
         vc.columns = ["label", "deleted", "count"]
-        return vc[vc['deleted'] != False][["label",  "count"]].to_dict(orient = 'index')
+        return vc[vc['deleted'] != True][["label",  "count"]].to_dict(orient = 'index')
 
     @staticmethod
     def check_leak(row):
@@ -40,8 +39,8 @@ class Stats:
     def get_global_stats(self):
         return {'total_images' : self.get_total_images(),
                 'total_annotations' : self.get_total_annotations(),
-                'total_errors' : self.get_total_errors(),
-                'bounding_box_leak' : self.get_bounding_box_leak(),
+                'total_errors' : self.get_error_info(),
+                'bounding_box_leak' : self.get_bounding_box_leak_info(),
                 'label_distribution' : self.get_label_distribution()
                 }
         
