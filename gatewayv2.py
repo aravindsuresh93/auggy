@@ -1,17 +1,14 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
 from utils.user_management.authorization import AuthHandler
 from utils.db_management.db_connector import DB
 from utils.project_management.project_management import ProjectManager
 from schemas.schemas import AuthDetails, Project
+from typing import List
 
 auth_handler = AuthHandler()
 project_manager = ProjectManager()
 app = FastAPI()
 db = DB()
-
-@app.get("/hello")
-def hello():
-    return {"hello" : "world"}
 
 """
 Users
@@ -22,7 +19,6 @@ def register(auth_details: AuthDetails):
     hashed_password = auth_handler.get_password_hash(auth_details.password)
     status, message = db.create_user(username=auth_details.username, password=hashed_password)
     return {"es": status, "message": message}
-
 
 @app.post('/user/login')
 def login(auth_details: AuthDetails):
@@ -61,8 +57,37 @@ def project_list(username=Depends(auth_handler.auth_wrapper)):
     status, message, data = project_manager.list_projects(username)
     return {"es": status, "message": message, 'data': data}
 
-@app.get('/project/{projectname}/getstats')
-def project_get_stats(projectname, username=Depends(auth_handler.auth_wrapper)):
+"""
+Stats
+"""
+
+@app.get('/{projectname}/getstats')
+def get_stats(projectname, username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
 
+@app.post('/{projectname}/label/rename')
+def rename_label(projectname, username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+
+@app.post('/{projectname}/label/delete')
+def delete_label(projectname, username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+
+"""
+fileupload
+"""
+
+@app.post("/{projectname}/upload/images")
+async def create_upload_file(file: List[UploadFile] = File(...)):
+    for f in file:
+        print(f.filename)
+    return {"yo": 'file.filename'}
+
+@app.post("/{projectname}/upload/annotations")
+async def create_upload_file(file: UploadFile = File(...)):
+    return {"filename": file.filename}
+
+@app.post("/{projectname}/upload/artefacts")
+async def create_upload_file(file: UploadFile = File(...)):
+    return {"filename": file.filename}
 
