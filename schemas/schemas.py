@@ -8,5 +8,5 @@ class AuthDetails(BaseModel):
 
 
 class Project(BaseModel):
-    name: Optional[str] = Field(None, title="The name of the project", max_length=30)
+    projectname: Optional[str] = Field(None, title="The name of the project", max_length=30)
     description: Optional[str] = Field(None, title="The description of the project", max_length=100)

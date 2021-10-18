@@ -19,9 +19,11 @@ class Queries:
     Project Management
     """
     CREATE_PROJECT = "INSERT INTO PROJECTS VALUES (%s, %s, %s)"
+    DELETE_PROJECT = "DELETE FROM PROJECTS WHERE projectname = %s"
 
     """
     Insert Access
     """
     INSERT_ACCESS = "INSERT INTO ACCESS VALUES (%s, %s, %s)"
+    DELETE_ACCESS = "DELETE FROM ACCESS WHERE username = %s and projectname = %s"
 

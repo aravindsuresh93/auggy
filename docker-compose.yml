@@ -1,15 +1,15 @@
 version: "3"
 services:
-  #  auggy:
-  #    image:  auggy
-  #    container_name: auggy
-  #    stdin_open: true
-  #    volumes:
-  #      - /Users/aravind/Desktop/Projects/auggy:/app/auggy
-  #    ports:
-  #      - 8099:8099
-  #      - 8088:8088
-  auggy-postgres:
+  auggy:
+    image:  auggy
+    container_name: auggy
+    volumes:
+      - /Users/aravind/Desktop/Projects/auggy:/app/auggy
+    command : "uvicorn gatewayv2:app --host 0.0.0.0 --port 8090 --reload"
+    ports:
+      - 8090:8090
+  
+  postgresdb:
     container_name: auggy-postgres
     restart: always
     image: postgres:latest

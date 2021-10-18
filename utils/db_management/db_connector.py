@@ -4,7 +4,7 @@ import pandas as pd
 import psycopg2
 import json
 
-POSTGRES_HOST = "0.0.0.0"
+POSTGRES_HOST = "postgresdb"
 POSTGRES_PASSWORD = "password"
 POSTGRES_USER = "postgres"
 
@@ -78,6 +78,13 @@ class DB:
             self.conn.rollback()
             return 1, e
 
+    def delete_project(self, data):
+        try:
+            self.insert(Queries.DELETE_PROJECT, data)
+        except Exception as e:
+            self.conn.rollback()
+            return 1, e
+
     def insert_access(self, data):
         try:
             self.insert(Queries.INSERT_ACCESS, data)
@@ -85,6 +92,13 @@ class DB:
         except UniqueViolation:
             self.conn.rollback()
             return 1, "Role already exists"
+        except Exception as e:
+            self.conn.rollback()
+            return 1, e
+
+    def delete_access(self, data):
+        try:
+            self.insert(Queries.DELETE_ACCESS, data)
         except Exception as e:
             self.conn.rollback()
             return 1, e
