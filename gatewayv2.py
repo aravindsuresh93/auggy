@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from utils.user_management.authorization import AuthHandler
 from utils.db_management.db_connector import DB
 from utils.project_management.project_management import ProjectManager
@@ -12,6 +13,16 @@ auth_handler = AuthHandler()
 app = FastAPI()
 db = DB()
 
+"""
+CORS middleware
+"""
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 """
 Users
