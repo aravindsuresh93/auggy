@@ -4,6 +4,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
+ACCESS_TIME_LIMIT = 1
+REFRESH_TIME_LIMIT = 2
 
 class AuthHandler():
     security = HTTPBearer()
@@ -15,14 +17,26 @@ class AuthHandler():
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
+    
+    def get_payload(user_id, delta):
+        return 
 
     def encode_token(self, user_id):
-        payload = {
-            'exp': datetime.utcnow() + timedelta(days=1),
+        access_payload = {
+            'exp': datetime.utcnow() + timedelta(days=ACCESS_TIME_LIMIT),
             'iat': datetime.utcnow(),
             'sub': user_id
         }
-        return jwt.encode(payload, self.secret, algorithm='HS256')
+
+        refresh_payload = {
+            'exp': datetime.utcnow() + timedelta(days=REFRESH_TIME_LIMIT),
+            'iat': datetime.utcnow(),
+            'sub': user_id
+        }
+
+        access_token = jwt.encode(access_payload, self.secret, algorithm='HS256')
+        refresh_token = jwt.encode(refresh_payload, self.secret, algorithm='HS256')
+        return access_token, refresh_token
 
     def decode_token(self, token):
         try:

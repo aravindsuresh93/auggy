@@ -39,8 +39,13 @@ def login(auth_details: AuthDetails):
     userinfo = db.get_user(auth_details.username)
     if not len(userinfo) or (not auth_handler.verify_password(auth_details.password, userinfo.get('password', '.'))):
         raise HTTPException(status_code=401, detail='Invalid username and/or password')
-    token = auth_handler.encode_token(userinfo['username'])
-    return {"access_token": token, "token_type": "bearer"}
+    access_token, refresh_token = auth_handler.encode_token(userinfo['username'])
+    return {"access_token": access_token, "refresh_token" : refresh_token,"token_type": "Bearer"}
+
+@app.get('/user/refresh')
+def project_create(username=Depends(auth_handler.auth_wrapper)):
+    access_token, refresh_token = auth_handler.encode_token(username)
+    return {"access_token": access_token, "refresh_token" : refresh_token,"token_type": "Bearer"}
 
 @app.post('/user/edit')
 def user_edit(username=Depends(auth_handler.auth_wrapper)):
@@ -76,21 +81,27 @@ fileupload
 """
 
 @app.post("/{projectname}/upload/images")
-async def create_upload_file(projectname, files: List[UploadFile] = File(...), username=Depends(auth_handler.auth_wrapper)):
+async def upload_images(projectname, files: List[UploadFile] = File(...), username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
     status, message = FileManager.upload_images(projectname, files)
     return {"es": status, "message": message}
 
 @app.post("/{projectname}/upload/annotations")
-async def create_upload_file(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+async def upload_annotations(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
     status, message = FileManager.upload_annotations(projectname, files)
     return {"es": status, "message": message}
 
 @app.post("/{projectname}/upload/artefacts")
-async def create_upload_file(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+async def upload_artefacts(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
     status, message = FileManager.upload_artefacts(projectname, files)
+    return {"es": status, "message": message}
+
+@app.post("/{projectname}/upload/build")
+async def upload_build(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+    status, message = FileManager.upload_build(projectname, files)
     return {"es": status, "message": message}
 
 
