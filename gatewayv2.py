@@ -2,13 +2,16 @@ from fastapi import FastAPI, Depends, HTTPException, File, UploadFile
 from utils.user_management.authorization import AuthHandler
 from utils.db_management.db_connector import DB
 from utils.project_management.project_management import ProjectManager
+from utils.file_manager.file_manager import FileManager
 from schemas.schemas import AuthDetails, Project
 from typing import List
 
-auth_handler = AuthHandler()
+
 project_manager = ProjectManager()
+auth_handler = AuthHandler()
 app = FastAPI()
 db = DB()
+
 
 """
 Users
@@ -58,6 +61,29 @@ def project_list(username=Depends(auth_handler.auth_wrapper)):
     return {"es": status, "message": message, 'data': data}
 
 """
+fileupload
+"""
+
+@app.post("/{projectname}/upload/images")
+async def create_upload_file(projectname, files: List[UploadFile] = File(...), username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+    status, message = FileManager.upload_images(projectname, files)
+    return {"es": status, "message": message}
+
+@app.post("/{projectname}/upload/annotations")
+async def create_upload_file(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+    status, message = FileManager.upload_annotations(projectname, files)
+    return {"es": status, "message": message}
+
+@app.post("/{projectname}/upload/artefacts")
+async def create_upload_file(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+    project_manager.check_access(username, projectname)
+    status, message = FileManager.upload_artefacts(projectname, files)
+    return {"es": status, "message": message}
+
+
+"""
 Stats
 """
 
@@ -73,21 +99,4 @@ def rename_label(projectname, username=Depends(auth_handler.auth_wrapper)):
 def delete_label(projectname, username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
 
-"""
-fileupload
-"""
-
-@app.post("/{projectname}/upload/images")
-async def create_upload_file(file: List[UploadFile] = File(...)):
-    for f in file:
-        print(f.filename)
-    return {"yo": 'file.filename'}
-
-@app.post("/{projectname}/upload/annotations")
-async def create_upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename}
-
-@app.post("/{projectname}/upload/artefacts")
-async def create_upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename}
 

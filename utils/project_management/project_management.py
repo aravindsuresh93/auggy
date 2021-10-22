@@ -18,7 +18,8 @@ class ProjectManager:
         os.makedirs(f'{BASE_FOLDER}/{name}/input_images')
         os.makedirs(f'{BASE_FOLDER}/{name}/input_annotations')  
         os.makedirs(f'{BASE_FOLDER}/{name}/output_images')
-        os.makedirs(f'{BASE_FOLDER}/{name}/output_annotations')  
+        os.makedirs(f'{BASE_FOLDER}/{name}/output_annotations')
+        os.makedirs(f'{BASE_FOLDER}/{name}/artefacts')
 
     def create(self, request, username):
         metainfo = {'createdby': username, 'createdtime': int(time.time()), 'description': request.description}
