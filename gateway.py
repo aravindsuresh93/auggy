@@ -5,6 +5,7 @@ from utils.db_management.db_connector import DB
 from utils.project_management.project_management import ProjectManager
 from utils.file_manager.file_manager import FileManager
 from schemas.schemas import AuthDetails, Project
+from utils.db_management.sqls import Queries
 from typing import List
 
 
@@ -31,7 +32,11 @@ Users
 @app.post('/user/register', status_code=201)
 def register(auth_details: AuthDetails):
     hashed_password = auth_handler.get_password_hash(auth_details.password)
-    status, message = db.create_user(username=auth_details.username, password=hashed_password)
+    print(Queries.CREATE_USER, (auth_details.username, hashed_password, {}))
+    status, message = db.execute(Queries.CREATE_USER, (auth_details.username, hashed_password, '{}'))
+
+
+    if status == 2: message = f'Username {auth_details.username} taken, please use a different username'
     return {"es": status, "message": message}
 
 @app.post('/user/login')

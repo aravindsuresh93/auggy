@@ -1,3 +1,4 @@
+from utils.db_management.sqls import Queries
 from utils.db_management.db_connector import DB
 from fastapi import HTTPException
 import json
@@ -26,11 +27,12 @@ class ProjectManager:
         if not request.projectname:
             raise HTTPException(status_code=400, detail='project name is mandatory')
         data = (request.projectname, json.dumps(metainfo), json.dumps({}))
-        status, message = self.db.create_project(data)
+        status, message = self.db.execute(Queries.CREATE_PROJECT, data)
+        if status == 2 : return status, "Project already exists, please use a new name"
         if status: return status, message
 
         accesssdata = (username, request.projectname, "admin")
-        s, m = self.db.insert_access(accesssdata)
+        s, m = self.db.execute(Queries.INSERT_ACCESS, accesssdata)
 
         if not s and not status:
             ProjectManager.create_project_structure(request.projectname)
@@ -39,8 +41,9 @@ class ProjectManager:
 
     def delete(self, username, projectname):
         try:
-            status1, message1 = self.db.delete_access((username, projectname))
-            status2, message2 = self.db.delete_project((projectname,))
+            
+            status1, message1 = self.db.execute(Queries.DELETE_ACCESS, (username, projectname))
+            status2, message2 = self.db.execute(Queries.DELETE_PROJECT, (projectname))
             return status1 or status2, f"{message1} , {message2}"
         except Exception as e:
             print(e)

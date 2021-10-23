@@ -5,7 +5,7 @@ services:
     container_name: auggy
     volumes:
       - /Users/aravind/Desktop/Projects/auggy:/app/auggy
-    command : "uvicorn gatewayv2:app --host 0.0.0.0 --port 8090 --reload"
+    command : "uvicorn gateway:app --host 0.0.0.0 --port 8090 --reload"
     ports:
       - 8090:8090
   

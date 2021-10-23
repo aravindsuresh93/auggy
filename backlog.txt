@@ -1,5 +1,6 @@
 load annotations and build df
 revist columns in df
+review project delete
 df -> db link and retreival based on project
 
 

@@ -27,3 +27,9 @@ class Queries:
     INSERT_ACCESS = "INSERT INTO ACCESS VALUES (%s, %s, %s)"
     DELETE_ACCESS = "DELETE FROM ACCESS WHERE username = %s and projectname = %s"
 
+
+    """
+    Show all tables
+    """
+    SHOW_ALL_TABLES = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+

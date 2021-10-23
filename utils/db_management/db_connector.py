@@ -1,8 +1,12 @@
 from utils.db_management.sqls import Queries
 from psycopg2.errors import UniqueViolation
+from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
 import json
+from clogger.clogger import CLogger
+
+logger = CLogger.get('database')
 
 POSTGRES_HOST = "postgresdb"
 POSTGRES_PASSWORD = "password"
@@ -16,50 +20,34 @@ class DB:
                                      user=POSTGRES_USER)
         self.cursor = self.conn.cursor()
         self.initialise_all_tables()
-
-    def execute(self, query):
-        """
-        Execute a query
-        """
-        self.cursor.execute(query)
-        self.conn.commit()
-
-    def insert(self, query, data):
-        """
-        Execute insert query
-        """
-        self.cursor.execute(query, data)
-        self.conn.commit()
-
-    def select(self, query):
-        """
-        Run select query
-        """
-        df = pd.read_sql(query, self.conn)
-        return df
-
-    def delete_table(self):
-        self.execute(Queries.DROP_TABLES)
+        self.engine = create_engine(f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/')
+        logger.info('Initialised')
 
     def initialise_all_tables(self):
         self.execute(Queries.CREATE_USER_TABLE)
         self.execute(Queries.CREATE_PROJECT_TABLE)
         self.execute(Queries.CREATE_ACCESS_TABLE)
 
-    def close(self):
-        self.conn.close()
-
-    def create_user(self, username, password):
+    def execute(self, query, data=""):
         try:
-            self.insert(Queries.CREATE_USER, (username, password, json.dumps({})))
-            return 0, f"Registered new user {username}"
+            self.cursor.execute(query, data)
+            self.conn.commit()
+            return 0, ""
         except UniqueViolation:
             self.conn.rollback()
-            return 1, "User already exists, please use a different username/ login"
+            return 2, ""
         except Exception as e:
+            print(e)
             self.conn.rollback()
             return 1, e
 
+    def select(self, query):
+        df = pd.read_sql(query, self.conn)
+        return df
+    
+    def save_df(self, df, tablename):
+        df.to_sql(tablename, self.engine, index=False, if_exists='replace')
+    
     def get_user(self, username):
         command = f"SELECT username, password from users where username = '{username}'"
         df = self.select(command)
@@ -67,50 +55,5 @@ class DB:
             return df.to_dict(orient='index')[0]
         return {}
 
-    def create_project(self, data):
-        try:
-            self.insert(Queries.CREATE_PROJECT, data)
-            return 0, f"Created Project {data[0]}"
-        except UniqueViolation:
-            self.conn.rollback()
-            return 1, "Project already exists, please use a new name"
-        except Exception as e:
-            self.conn.rollback()
-            return 1, e
-
-    def delete_project(self, data):
-        try:
-            self.insert(Queries.DELETE_PROJECT, data)
-        except Exception as e:
-            self.conn.rollback()
-            return 1, e
-
-    def insert_access(self, data):
-        try:
-            self.insert(Queries.INSERT_ACCESS, data)
-            return 0, f"Created Role"
-        except UniqueViolation:
-            self.conn.rollback()
-            return 1, "Role already exists"
-        except Exception as e:
-            self.conn.rollback()
-            return 1, e
-
-    def delete_access(self, data):
-        try:
-            self.insert(Queries.DELETE_ACCESS, data)
-        except Exception as e:
-            self.conn.rollback()
-            return 1, e
 
 
-
-
-
-
-
-# db.add_user("aravind", "pass")
-# db.delete_table()
-# df = db.query("select * from users")
-# df = db.get_user("aravind1")
-# print(df)

@@ -1,7 +1,7 @@
 from utils.annotations.open_annotations.open_factory import OpenAnnotations, OpenLabels
 from utils.annotations.annotation_format.annotation_format import FormatFinder
-from utils.common import skip_files
 from config.config import BASE_FOLDER, SUPPORTED_EXTENSIONS
+from utils.db_management.db_connector import DB
 import pandas as pd
 import os
 
@@ -9,7 +9,7 @@ import os
 from clogger.clogger import CLogger
 logger = CLogger.get("auggy-load-annotations")
 
-
+db = DB()
 
 
 class LoadAnnotations:
@@ -42,7 +42,7 @@ class LoadAnnotations:
         return classes
 
     @staticmethod
-    def load_files(image_folder, annotation_files = [], annotation_formats=[], artefacts_path=""):
+    def load_files(projectname, image_folder, annotation_files = [], annotation_formats=[], artefacts_path=""):
         annotation_info = {}
         for annotation_format in annotation_formats:
             classes = OpenLabels.get(annotation_format)(artefacts_path).classes
@@ -58,6 +58,8 @@ class LoadAnnotations:
         logger.info(df)
         logger.info(df.columns)
         logger.info(classes)
+        db.save_df(df, f'df_{projectname}')
+        db.save_df(classes, f'classes_{projectname}')
         return df, classes
     
     @staticmethod
@@ -75,7 +77,7 @@ class LoadAnnotations:
         annotation_formats = list(annotation_formats.keys())
         logger.info(f"Annotation formats {annotation_formats}")
 
-        LoadAnnotations.load_files(images_folder, annotation_files, annotation_formats,artefacts_path)
+        LoadAnnotations.load_files(projectname, images_folder, annotation_files, annotation_formats,artefacts_path)
         return 0, ""
 
 
