@@ -99,9 +99,9 @@ async def upload_artefacts(projectname, files: List[UploadFile]  = File(...), us
     return {"es": status, "message": message}
 
 @app.post("/{projectname}/upload/build")
-async def upload_build(projectname, files: List[UploadFile]  = File(...), username=Depends(auth_handler.auth_wrapper)):
+async def upload_build(projectname, username=Depends(auth_handler.auth_wrapper)):
     project_manager.check_access(username, projectname)
-    status, message = FileManager.upload_build(projectname, files)
+    status, message = FileManager.upload_build(projectname)
     return {"es": status, "message": message}
 
 

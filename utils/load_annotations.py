@@ -1,7 +1,15 @@
-from utils.open_annotations.open_factory import OpenAnnotations, OpenLabels
+from utils.annotations.open_annotations.open_factory import OpenAnnotations, OpenLabels
+from utils.annotations.annotation_format.annotation_format import FormatFinder
 from utils.common import skip_files
+from config.config import BASE_FOLDER, SUPPORTED_EXTENSIONS
 import pandas as pd
 import os
+
+
+from clogger.clogger import CLogger
+logger = CLogger.get("auggy-load-annotations")
+
+
 
 
 class LoadAnnotations:
@@ -34,19 +42,51 @@ class LoadAnnotations:
         return classes
 
     @staticmethod
-    def load(annotation_folder, annotation_format, image_folder, classes_path=""):
+    def load_files(image_folder, annotation_files = [], annotation_formats=[], artefacts_path=""):
         annotation_info = {}
-        annotation_files = [file for file in os.listdir(annotation_folder) if annotation_format in file]
-        AE = OpenAnnotations.get(annotation_format)
-        classes = OpenLabels.get(annotation_format, classes_path)
-        for file_name in annotation_files:
-            if skip_files(file_name): continue
-            name = file_name.split(annotation_format)[0]
-            annotation = AE.open(os.path.join(annotation_folder, file_name), image_folder, name, classes)
-            annotation_info[file_name] = annotation
+        for annotation_format in annotation_formats:
+            classes = OpenLabels.get(annotation_format)(artefacts_path).classes
+            AE = OpenAnnotations.get(annotation_format)
+            for file_name in annotation_files:
+                basename, ext = os.path.splitext(file_name)
+                if annotation_format not in ext: continue
+                annotation = AE.open(file_name, image_folder, basename, classes)
+                annotation_info[file_name] = annotation
+
         df = LoadAnnotations.combine_annotation_to_frame(annotation_info)
         classes = LoadAnnotations.convert_classes_to_frame(classes)
+        logger.info(df)
+        logger.info(df.columns)
+        logger.info(classes)
         return df, classes
+    
+    @staticmethod
+    def load(projectname):
+        images_folder = f'{BASE_FOLDER}/{projectname}/input_images'
+        annotations_folder = f'{BASE_FOLDER}/{projectname}/input_annotations'
+        artefacts_path = f'{BASE_FOLDER}/{projectname}/artefacts'
+        annotation_files, annotation_formats = [], {}
+        for file in os.listdir(annotations_folder):
+            ext = os.path.splitext(file)[1]
+            if ext in SUPPORTED_EXTENSIONS:
+                annotation_files.append(os.path.join(annotations_folder, file))
+                annotation_formats[ext] = 1
+
+        annotation_formats = list(annotation_formats.keys())
+        logger.info(f"Annotation formats {annotation_formats}")
+
+        LoadAnnotations.load_files(images_folder, annotation_files, annotation_formats,artefacts_path)
+        return 0, ""
+
+
+        
+
+
+
+
+
+
+
 
 
 

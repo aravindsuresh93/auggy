@@ -1,14 +1,7 @@
-Login 
-parked for now
+load annotations and build df
+revist columns in df
+df -> db link and retreival based on project
 
-Project management:
-Design multi-user project management ( a better design)
-
-Upload images:
-Reverification of process and unified path management
-
-Stats:
-Think about more Stats
 
 Edit Annotations : 
 Rename 
@@ -16,5 +9,6 @@ Delete
 Auto-edit-bouding-box
 
 Augmentation : 
+No bounding box augmentation for classification tasks
 Finish core for Augmentation
 design full flow

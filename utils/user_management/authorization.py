@@ -17,9 +17,6 @@ class AuthHandler():
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
-    
-    def get_payload(user_id, delta):
-        return 
 
     def encode_token(self, user_id):
         access_payload = {

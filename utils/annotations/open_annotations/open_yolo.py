@@ -1,4 +1,3 @@
-from utils.path_manager import PathFinder
 from utils.common import convert_to_auggy, get_image_info
 import json
 import os

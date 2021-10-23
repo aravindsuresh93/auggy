@@ -28,7 +28,17 @@ def get_image_info(image_folder, name):
 
 
 class YoloLabels:
-    def __init__(self, cpath):
+    def __init__(self, artefacts_path):
+        files = os.listdir(artefacts_path)
+        assert len(files), "labels file for YoloFormat not found, kindly upload"
+        cpath = ""
+        for f in files:
+            basename, ext = os.path.splitext(f)
+            if ext in ['.names', '.label', '.txt']:
+                cpath = os.path.join(artefacts_path, f)
+                break
+        
+        assert len(cpath), "labels file for YoloFormat not found, kindly upload"
         with open(cpath, 'r') as f:
             labels = f.readlines()
 
@@ -36,3 +46,8 @@ class YoloLabels:
         for e, label in enumerate(labels):
             label = label.replace('\n', '')
             self.classes[e] = label
+
+
+class EmtpyLabels:
+    def __init__(self, cpath):
+        self.classes = {}

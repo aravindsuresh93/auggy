@@ -1,11 +1,15 @@
+from utils.load_annotations import LoadAnnotations
+from clogger.clogger import CLogger
+from config.config import BASE_FOLDER
 import shutil
 import os
 
-BASE_FOLDER = "data_lake"
+logger = CLogger.get("auggy-file-manager")
 
 class FileManager:
     @staticmethod
     def __upload(files, save_folder):
+        logger.info(f"Uploading files to {save_folder}")
         try:
             for file in files:
                 with open(os.path.join(save_folder, file.filename), "wb") as buffer:
@@ -25,3 +29,7 @@ class FileManager:
     @staticmethod
     def upload_artefacts(projectname, files):
         return FileManager.__upload(files, f'{BASE_FOLDER}/{projectname}/artefacts') 
+
+    def upload_build(projectname):
+        logger.info(f"Loading project {projectname}")
+        return LoadAnnotations.load(projectname)
